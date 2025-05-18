@@ -3,10 +3,14 @@ paci() { [ -z "$1" ] && return 0 || sudo pacman -S --needed "$@"; }
 pari() { [ -z "$1" ] && return 0 || paru -S --needed "$@"; }
 
 # AUR
-sudo pacman -S --needed base-devel
-git clone https://aur.archlinux.org/paru.git
-cd paru
-makepkg -si
+if ! command -v paru &> /dev/null; then
+    paci base-devel git
+    git clone https://aur.archlinux.org/paru.git
+    cd paru
+    makepkg -si
+    cd ..
+    rm -rf paru
+fi
 
 # ZSH
 paci zsh
