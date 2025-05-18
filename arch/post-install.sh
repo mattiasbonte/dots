@@ -1,6 +1,6 @@
 # FN
-paci() { [ -z "$1" ] && return 0 || sudo pacman -S --needed "$@"; }
-pari() { [ -z "$1" ] && return 0 || paru -S --needed "$@"; }
+paci() { [ -z "$1" ] && return 0 || sudo pacman -S --needed --noconfirm "$@"; }
+pari() { [ -z "$1" ] && return 0 || paru -S --needed --noconfirm "$@"; }
 
 # AUR
 if ! command -v paru &> /dev/null; then
