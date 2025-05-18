@@ -9,6 +9,7 @@ pari() { [ -z "$1" ] && return 0 || paru -S --needed --noconfirm "$@"; }
 cari() { [ -z "$1" ] && return 0 || cargo install "$@"; }
 
 # ZSH
+paci zsh zsh-completions starship alacritty
 sudo chsh -s $(which zsh) $USER
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
@@ -22,9 +23,6 @@ cp -r "$HOME/DOTS/arch/config/yazi" "$HOME/.config/yazi"
 paci pacman-contrib base-devel git
 paci jq xsel xclip btop wget atool aria2 cmake keychain xdotool bat tree
 
-# ZSH
-paci zsh zsh-completions starship alacritty
-sudo chsh -s $(which zsh)
 
 # RUST
 rustup default stable
