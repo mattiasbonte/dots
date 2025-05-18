@@ -1,13 +1,44 @@
 # Helpers
-install() {
-    if [ "$1" = "pacman" ]; then
-        if ! pacman -Qi "$2" &>/dev/null; then
-            sudo pacman -S --needed "$2"
-        fi
-    elif [ "$1" = "paru" ]; then
-        if ! paru -Qi "$2" &>/dev/null; then
-            paru -S "$2"
-        fi
+i() {
+    local pm="$1"
+    shift
+
+    if [ -z "$1" ]; then
+        echo "POST INSTALL ERROR: No package specified."
+        return 1
+    fi
+
+    if [ "$pm" = "pacman" ]; then
+        for pkg in "$@"; do
+            echo "Checking package: $pkg"
+            if ! pacman -Qi "$pkg" &>/dev/null; then
+                echo "Installing $pkg with pacman..."
+                sudo pacman -S --needed "$pkg" || {
+                    echo "Failed to install $pkg"
+                    return 1
+                }
+                echo "$pkg installed successfully"
+            else
+                echo "$pkg is already installed"
+            fi
+        done
+    elif [ "$pm" = "paru" ]; then
+        for pkg in "$@"; do
+            echo "Checking package: $pkg"
+            if ! paru -Qi "$pkg" &>/dev/null; then
+                echo "Installing $pkg with paru..."
+                paru -S "$pkg" || {
+                    echo "Failed to install $pkg"
+                    return 1
+                }
+                echo "$pkg installed successfully"
+            else
+                echo "$pkg is already installed"
+            fi
+        done
+    else
+        echo "POST INSTALL ERROR: Invalid package manager specified. Use 'pacman' or 'paru'."
+        return 1
     fi
 }
 
@@ -18,16 +49,16 @@ cd paru
 makepkg -si
 
 # Shell
-install pacman zsh
-install pacman zsh-completions
+i pacman zsh
+i pacman zsh-completions
 sudo chsh -s $(which zsh)
 
 # Yazi
-install yazi ffmpeg 7zip jq poppler fd ripgrep fzf zoxide imagemagick
+i pacman yazi ffmpeg 7zip jq poppler fd ripgrep fzf zoxide imagemagick
 paru resvg
 
 # Git
-install pacman lazygit github-cli
+i pacman lazygit github-cli
 
 # Game
-install pacman pacman-contrib
+i pacman pacman-contrib
