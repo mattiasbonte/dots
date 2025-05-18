@@ -8,21 +8,18 @@ paci() { [ -z "$1" ] && return 0 || sudo pacman -S --needed --noconfirm "$@"; }
 pari() { [ -z "$1" ] && return 0 || paru -S --needed --noconfirm "$@"; }
 cari() { [ -z "$1" ] && return 0 || cargo install "$@" --if-not-installed; }
 
+# BASE
+paci base-devel git
+paci jq xsel xclip btop wget atool aria2 cmake keychain xdotool bat tree
+
 # ZSH
 paci zsh zsh-completions starship alacritty
 sudo chsh -s $(which zsh) $USER
 sh -c "$(wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
 
-# COPY CONF
+# CONFIG
+find "$HOME/DOTS/arch/config" -mindepth 1 -maxdepth 1 -type d -exec cp -r {} "$HOME/.config" \;
 cp -r "$HOME/DOTS/arch/config/zshrc" "$HOME/.zshrc"
-cp -r "$HOME/DOTS/arch/config/zsh" "$HOME/.config/zsh"
-cp -r "$HOME/DOTS/arch/config/tmux" "$HOME/.config/tmux"
-cp -r "$HOME/DOTS/arch/config/yazi" "$HOME/.config/yazi"
-cp -r "$HOME/DOTS/arch/config/lazygit" "$HOME/.config/lazygit"
-
-# BASE
-paci base-devel git
-paci jq xsel xclip btop wget atool aria2 cmake keychain xdotool bat tree
 
 # RUST
 rustup default stable
