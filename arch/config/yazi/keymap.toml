@@ -1,0 +1,19 @@
+# --
+# PERSONAL
+# --
+[[manager.prepend_keymap]]
+on = ["?"]
+run = "help"
+desc = "Show Help Menu"
+
+[[input.prepend_keymap]]
+on   = [ "<Esc>" ]
+run  = "close"
+desc = "Cancel input"
+
+# @see https://yazi-rs.github.io/docs/tips/#dropping-to-shell
+# @note better to use <C-z> since its built in behavior
+[[manager.prepend_keymap]]
+on   = [ "<C-s>" ]
+run  = 'shell "$SHELL" --block --confirm'
+desc = "Open shell here"

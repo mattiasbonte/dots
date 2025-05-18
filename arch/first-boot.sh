@@ -8,10 +8,6 @@ paci() { [ -z "$1" ] && return 0 || sudo pacman -S --needed --noconfirm "$@"; }
 pari() { [ -z "$1" ] && return 0 || paru -S --needed --noconfirm "$@"; }
 cari() { [ -z "$1" ] && return 0 || cargo install "$@"; }
 
-# COPY CONF
-cp -r "$HOME/DOTS/arch/config/i3" "$HOME/.config/i3"
-cp -r "$HOME/DOTS/arch/config/tmux" "$HOME/.config/tmux"
-
 # RUST
 rustup default stable
 

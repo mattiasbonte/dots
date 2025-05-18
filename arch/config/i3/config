@@ -44,9 +44,9 @@ exec_always --no-startup-id $HOME/.config/polybar/launch.sh
 # ░▒█▀▀▄░▒█░░▒█▒█▒█░▒█░▒█░░▀▀▀▄▄
 # ░▒█▄▄█░▄█▄░▒█░░▀█░▒█▄▄█░▒█▄▄▄█
 bindsym $mod+z kill
+bindsym $mod+Return exec alacritty
 bindsym $mod+v exec --no-startup-id export CM_LAUNCHER=rofi && clipmenu
 bindsym $mod+space exec --no-startup-id rofi -config $HOME/.config/rofi/apps-menu.rasi -show drun -run-shell-command '{terminal} -e zsh -ic "{cmd} && read"'
-bindsym $mod+s exec --no-startup-id sh $HOME/.config/rofi/scripts/bothive-menu.sh
 bindsym $mod+mod1+control+space exec --no-startup-id sh $HOME/.config/rofi/scripts/quick-launcher.sh
 
 
