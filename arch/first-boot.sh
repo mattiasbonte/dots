@@ -9,9 +9,22 @@ pari() { [ -z "$1" ] && return 0 || paru -S --needed --noconfirm "$@"; }
 cari() { [ -z "$1" ] && return 0 || cargo install "$@"; }
 
 # ZSH
-sudo chsh -s $(which zsh)
+sudo chsh -s $(which zsh) $USER
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
+# COPY CONF
+cp -r "$HOME/DOTS/arch/config/zshrc" "$HOME/.zshrc"
+cp -r "$HOME/DOTS/arch/config/zsh" "$HOME/.config/zsh"
+cp -r "$HOME/DOTS/arch/config/tmux" "$HOME/.config/tmux"
+cp -r "$HOME/DOTS/arch/config/yazi" "$HOME/.config/yazi"
+
+# BASE
+paci pacman-contrib base-devel git
+paci jq xsel xclip btop wget atool aria2 cmake keychain xdotool bat tree
+
+# ZSH
+paci zsh zsh-completions starship alacritty
+sudo chsh -s $(which zsh)
 
 # RUST
 rustup default stable
@@ -27,7 +40,11 @@ if ! command -v paru &>/dev/null; then
 fi
 
 # FM
+paci yazi ffmpeg 7zip jq poppler fd ripgrep fzf zoxide imagemagick trash-cli mpv unrar unzip
 pari resvg
+
+# GIT
+paci git lazygit github-cli git-delta
 
 # DEV
 pari nvm pnpm-bin
@@ -51,3 +68,7 @@ paru proton-ge-custom-bin teamspeak3
 
 paci irqbalance
 sudo systemctl enable --now irqbalance
+
+
+# REBOOT AT THE END
+sudo reboot
