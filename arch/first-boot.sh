@@ -4,9 +4,9 @@
 # --
 
 # FN
-paci() { [ -z "$1" ] && return 0 || sudo pacman -S --needed --noconfirm "$@"; }
-pari() { [ -z "$1" ] && return 0 || paru -S --needed --noconfirm "$@"; }
-cari() { [ -z "$1" ] && return 0 || cargo install "$@" --if-not-installed; }
+paci() { [ -z "$1" ] && return 0 || command -v pacman >/dev/null 2>&1 && sudo pacman -S --needed --noconfirm "$@" || echo "pacman not found, skipping: $@"; }
+pari() { [ -z "$1" ] && return 0 || command -v paru >/dev/null 2>&1 && paru -S --needed --noconfirm "$@" || echo "paru not found, skipping: $@"; }
+cari() { [ -z "$1" ] && return 0 || command -v cargo >/dev/null 2>&1 && cargo install "$@" --if-not-installed || echo "cargo not found, skipping: $@"; }
 
 # BASE
 paci base-devel git
