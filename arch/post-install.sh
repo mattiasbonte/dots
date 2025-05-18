@@ -16,7 +16,7 @@ cp -r "$HOME/DOTS/arch/config/yazi" "$HOME/.config/yazi"
 cp -r "$HOME/DOTS/arch/config/polybar" "$HOME/.config/polybar"
 
 # BASE
-paci pacman-contrib paci base-devel git
+paci pacman-contrib base-devel git
 
 # ZSH
 paci zsh zsh-completions starship alacritty

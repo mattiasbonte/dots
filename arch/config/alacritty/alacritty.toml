@@ -1,0 +1,39 @@
+# ------------------------------------------------------------------------------------- #
+# CONFIG - https://github.com/alacritty/alacritty/blob/master/extra/man/alacritty.5.scd #
+# ------------------------------------------------------------------------------------- #
+
+# THEME
+import = [
+    "/home/wise/.config/alacritty/themes/catppuccin/mocha.toml",
+    "/home/wise/.config/alacritty/themes/tokyonight/night.toml",
+]
+
+# ----------------------------------------------------------------------------------------- #
+# FONTS - https://github.com/alacritty/alacritty/blob/master/extra/man/alacritty.5.scd#font #
+# ----------------------------------------------------------------------------------------- #
+[font]
+size = 10.0
+offset.x = 0
+offset.y = 1
+
+# @info restart alacritty if you changed the fonts.conf file
+normal.family = "termfonts"
+bold.family = "termfonts"
+italic.family = "termfonts"
+bold_italic.family = "termfonts"
+
+
+[window]
+opacity = 0.97
+
+dynamic_padding = false
+padding.x = 10
+padding.y = 10
+
+decorations = "buttonless" # "Full"
+# decorations_theme_variant = "Light" # "Dark"
+
+
+[env]
+TERM = "xterm-256color"
+# WINIT_X11_SCALE_FACTOR = "1.0"

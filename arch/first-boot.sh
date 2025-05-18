@@ -9,7 +9,9 @@ pari() { [ -z "$1" ] && return 0 || paru -S --needed --noconfirm "$@"; }
 cari() { [ -z "$1" ] && return 0 || cargo install "$@"; }
 
 # ZSH
+sudo chsh -s $(which zsh)
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+
 
 # RUST
 rustup default stable
@@ -23,7 +25,6 @@ if ! command -v paru &>/dev/null; then
     cd ..
     rm -rf paru
 fi
-
 
 # FM
 pari resvg
