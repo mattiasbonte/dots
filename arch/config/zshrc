@@ -1,0 +1,92 @@
+safeSource() {
+	[[ ! -f $1 ]] || source $1
+}
+
+
+# ------- #
+# EXPORTS #
+# ------- #
+safeSource "$HOME/.config/zsh/path.zsh"
+export ZSH="$HOME/.oh-my-zsh"
+
+
+# --------- #
+# OH MY ZSH #
+# --------- #
+DISABLE_AUTO_UPDATE="true" # NOTE: maintained in .chezmoieternal
+DISABLE_UPDATE_PROMPT="true"
+
+# WARN: Add wisely, as too many plugins slow down shell startup.
+plugins=(
+    # -------------------------------------------------------------------------------- #
+    # STANDARD ($ZSH/plugins/) https://github.com/ohmyzsh/ohmyzsh/wiki/Plugins#plugins #
+    # -------------------------------------------------------------------------------- #
+	# git
+	# sudo # NOTE: change keybind -> "nvim $ZSH/plugins/sudo/sudo.plugin.zsh" to "^ " (Ctrl-Space)
+
+    # ----------------------------------------------------------------- #
+    # CUSTOMS ($ZSH_CUSTOM/plugins/) NOTE: maintain in .chezmoieternal  #
+    # ----------------------------------------------------------------- #
+	zsh-npm-scripts-autocomplete
+	zsh-vi-mode
+	# fzf-tab
+	zsh-autosuggestions   
+	fast-syntax-highlighting
+)
+safeSource "$ZSH/oh-my-zsh.sh"
+
+
+# ------------------------------------------ #
+# HISTORY  run command with !<historynumber> #
+# ------------------------------------------ #
+export HISTFILE=~/.zsh_history
+setopt histignorespace           # skip cmds w/ leading space from history
+
+
+# --------- #
+# PREFERRED #
+# --------- #
+export EDITOR='nvim'
+export VISUAL='nvim'
+export PAGER='bat'
+export GIT_PAGER='delta'
+export TERMINAL='wezterm'
+export SYSTEMD_EDITOR=nvim
+
+if [[ -n $SSH_CONNECTION ]]; then
+	export EDITOR='vim'
+	export VISUAL='vim'
+fi
+
+# ----------- #
+# COMPLETIONS #
+# ----------- #
+fpath=($HOME/.config/zsh/completions $fpath)
+autoload -U compinit
+compinit
+
+# ----- #
+# TOOLS #
+# ----- #
+
+# ZSH
+safeSource "$HOME/.config/zsh/fzf/config.zsh"
+safeSource "$HOME/.config/zsh/fzf/helpers.zsh"
+
+# NVM
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+
+
+# ----------- #
+# ALWAYS LAST #
+# ----------- #
+
+# Aliases
+safeSource "$HOME/.config/zsh/aliases/_index.zsh"
+
+# Inits
+eval "$(zoxide init zsh)"
+eval "$(starship init zsh)"

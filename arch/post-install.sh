@@ -8,6 +8,7 @@
 paci() { [ -z "$1" ] && return 0 || sudo pacman -S --needed --noconfirm "$@"; }
 
 # COPY CONF
+cp -r "$HOME/DOTS/arch/config/zshrc" "$HOME/.zshrc"
 cp -r "$HOME/DOTS/arch/config/i3" "$HOME/.config/i3"
 cp -r "$HOME/DOTS/arch/config/zsh" "$HOME/.config/zsh"
 cp -r "$HOME/DOTS/arch/config/tmux" "$HOME/.config/tmux"
@@ -20,6 +21,7 @@ paci pacman-contrib paci base-devel git
 # ZSH
 paci zsh zsh-completions starship alacritty
 sudo chsh -s $(which zsh)
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 # FM
 paci yazi ffmpeg 7zip jq poppler fd ripgrep fzf zoxide imagemagick trash-cli mpv unrar unzip
