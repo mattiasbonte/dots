@@ -1,0 +1,43 @@
+#  __        ______  ________ __      __  ______  ______ ________       ______   ______  __    __ ________ ______  ______
+# |  \      /      \|        \  \    /  \/      \|      \        \     /      \ /      \|  \  |  \        \      \/      \
+# | ▓▓     |  ▓▓▓▓▓▓\\▓▓▓▓▓▓▓▓\▓▓\  /  ▓▓  ▓▓▓▓▓▓\\▓▓▓▓▓▓\▓▓▓▓▓▓▓▓    |  ▓▓▓▓▓▓\  ▓▓▓▓▓▓\ ▓▓\ | ▓▓ ▓▓▓▓▓▓▓▓\▓▓▓▓▓▓  ▓▓▓▓▓▓\
+# | ▓▓     | ▓▓__| ▓▓   /  ▓▓  \▓▓\/  ▓▓| ▓▓ __\▓▓ | ▓▓    | ▓▓       | ▓▓   \▓▓ ▓▓  | ▓▓ ▓▓▓\| ▓▓ ▓▓__     | ▓▓ | ▓▓ __\▓▓
+# | ▓▓     | ▓▓    ▓▓  /  ▓▓    \▓▓  ▓▓ | ▓▓|    \ | ▓▓    | ▓▓       | ▓▓     | ▓▓  | ▓▓ ▓▓▓▓\ ▓▓ ▓▓  \    | ▓▓ | ▓▓|    \
+# | ▓▓     | ▓▓▓▓▓▓▓▓ /  ▓▓      \▓▓▓▓  | ▓▓ \▓▓▓▓ | ▓▓    | ▓▓       | ▓▓   __| ▓▓  | ▓▓ ▓▓\▓▓ ▓▓ ▓▓▓▓▓    | ▓▓ | ▓▓ \▓▓▓▓
+# | ▓▓_____| ▓▓  | ▓▓/  ▓▓___    | ▓▓   | ▓▓__| ▓▓_| ▓▓_   | ▓▓       | ▓▓__/  \ ▓▓__/ ▓▓ ▓▓ \▓▓▓▓ ▓▓      _| ▓▓_| ▓▓__| ▓▓
+# | ▓▓     \ ▓▓  | ▓▓  ▓▓    \   | ▓▓    \▓▓    ▓▓   ▓▓ \  | ▓▓        \▓▓    ▓▓\▓▓    ▓▓ ▓▓  \▓▓▓ ▓▓     |   ▓▓ \\▓▓    ▓▓
+#  \▓▓▓▓▓▓▓▓\▓▓   \▓▓\▓▓▓▓▓▓▓▓    \▓▓     \▓▓▓▓▓▓ \▓▓▓▓▓▓   \▓▓         \▓▓▓▓▓▓  \▓▓▓▓▓▓ \▓▓   \▓▓\▓▓      \▓▓▓▓▓▓ \▓▓▓▓▓▓
+
+# --------------------------------------------------------------------------- #
+# https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md#default #
+# --------------------------------------------------------------------------- #
+confirmOnQuit: false
+quitOnTopLevelReturn: false
+notARepository: 'prompt' # one of: 'prompt' | 'create' | 'skip' | 'quit'
+promptToReturnFromSubprocess: false # display confirmation when subprocess terminates
+os:
+  editPreset: 'nvim'
+  editInTerminal: true
+git:
+  paging:
+    externalDiffCommand: difft --color=always --syntax-highlight=on --tab-width=2 --background=dark
+    pager: delta --paging=never --dark --side-by-side
+    colorArg: always
+  commitPrefixes:
+    # https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md#predefined-commit-message-prefix
+    wintro-mono: # Repository Name
+      pattern: ".*"
+      replace: "feat("
+
+customCommands:
+  # https://github.com/jesseduffield/lazygit/wiki/Custom-Commands-Compendium
+  - key: "<c-p>"
+    command: "git remote prune {{.SelectedRemote.Name}}"
+    context: "remotes"
+    loadingText: "Pruning..."
+    description: "prune deleted remote branches"
+  - key: "b"
+    command: "git branch --merged master | grep -v '^[ *]*master$' | xargs git branch -d"
+    context: "localBranches"
+    loadingText: "Pruning..."
+    description: "prune local branches that have been merged to master"

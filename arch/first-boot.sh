@@ -18,11 +18,11 @@ cp -r "$HOME/DOTS/arch/config/zshrc" "$HOME/.zshrc"
 cp -r "$HOME/DOTS/arch/config/zsh" "$HOME/.config/zsh"
 cp -r "$HOME/DOTS/arch/config/tmux" "$HOME/.config/tmux"
 cp -r "$HOME/DOTS/arch/config/yazi" "$HOME/.config/yazi"
+cp -r "$HOME/DOTS/arch/config/lazygit" "$HOME/.config/lazygit"
 
 # BASE
 paci pacman-contrib base-devel git
 paci jq xsel xclip btop wget atool aria2 cmake keychain xdotool bat tree
-
 
 # RUST
 rustup default stable
@@ -66,7 +66,6 @@ paru proton-ge-custom-bin teamspeak3
 
 paci irqbalance
 sudo systemctl enable --now irqbalance
-
 
 # REBOOT AT THE END
 sudo reboot
