@@ -11,7 +11,7 @@ cari() { [ -z "$1" ] && return 0 || cargo install "$@"; }
 # ZSH
 paci zsh zsh-completions starship alacritty
 sudo chsh -s $(which zsh) $USER
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+sh -c "$(wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
 
 # COPY CONF
 cp -r "$HOME/DOTS/arch/config/zshrc" "$HOME/.zshrc"
