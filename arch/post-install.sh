@@ -21,7 +21,6 @@ paci pacman-contrib paci base-devel git
 # ZSH
 paci zsh zsh-completions starship alacritty
 sudo chsh -s $(which zsh)
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
 # FM
 paci yazi ffmpeg 7zip jq poppler fd ripgrep fzf zoxide imagemagick trash-cli mpv unrar unzip
