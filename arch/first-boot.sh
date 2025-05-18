@@ -6,11 +6,11 @@
 # FN
 paci() { [ -z "$1" ] && return 0 || command -v pacman >/dev/null 2>&1 && sudo pacman -S --needed --noconfirm "$@" || echo "pacman not found, skipping: $@"; }
 pari() { [ -z "$1" ] && return 0 || command -v paru >/dev/null 2>&1 && paru -S --needed --noconfirm "$@" || echo "paru not found, skipping: $@"; }
-cari() { [ -z "$1" ] && return 0 || command -v cargo >/dev/null 2>&1 && cargo install "$@" --if-not-installed || echo "cargo not found, skipping: $@"; }
+cari() { [ -z "$1" ] && return 0 || command -v cargo >/dev/null 2>&1 && cargo install --if-not-installed "$@" || echo "cargo not found, skipping: $@"; }
 
 # BASE
 paci base-devel git
-paci jq xsel xclip btop wget atool aria2 cmake keychain xdotool bat tree
+paci jq xsel xclip btop wget atool aria2 cmake keychain xdotool bat tree age mpv
 
 # ZSH
 paci zsh zsh-completions starship alacritty
@@ -52,8 +52,6 @@ bob use nightly
 # WEB
 pari zen-browser-bin
 
-# AI
-cari aichat
 
 # --
 # GAME
@@ -64,13 +62,12 @@ paci pacman-contrib
 sudo sed -i '/^#\[multilib\]/,/^#Include = \/etc\/pacman.d\/mirrorlist/ s/^#//' /etc/pacman.conf
 sudo pacman -Sy
 
-paci giflib lib32-giflib libpng lib32-libpng libldap lib32-libldap gnutls lib32-gnutls mpg123 lib32-mpg123 openal lib32-openal v4l-utils lib32-v4l-utils libpulse lib32-libpulse libgpg-error lib32-libgpg-error alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib libjpeg-turbo lib32-libjpeg-turbo sqlite lib32-sqlite libxcomposite lib32-libxcomposite libxinerama lib32-libxinerama ncurses lib32-ncurses opencl-icd-loader lib32-opencl-icd-loader libxslt lib32-libxslt libva lib32-libva gtk3 lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader
-paci nvidia-dkms nvidia-utils lib32-nvidia-utils
-paci steam wine wine-stagin winetricks lutris mangohud gamemode
+# Deps
+paci steam wine wine-staging winetricks lutris mangohud gamemode
 paru proton-ge-custom-bin teamspeak3
 
-paci irqbalance
-sudo systemctl enable --now irqbalance
+# AI
+cari aichat
 
 # REBOOT AT THE END
 sudo reboot
