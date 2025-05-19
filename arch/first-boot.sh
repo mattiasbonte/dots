@@ -52,7 +52,6 @@ bob use nightly
 # WEB
 pari zen-browser-bin
 
-
 # --
 # GAME
 # --
@@ -63,8 +62,8 @@ sudo sed -i '/^#\[multilib\]/,/^#Include = \/etc\/pacman.d\/mirrorlist/ s/^#//' 
 sudo pacman -Sy
 
 # Deps
-paci steam wine wine-staging winetricks lutris mangohud gamemode
-paru proton-ge-custom-bin teamspeak3
+paci steam wine wine-staging winetricks lutris mangohud gamemode teamspeak3
+paru proton-ge-custom-bin
 
 # AI
 cari aichat
