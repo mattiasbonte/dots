@@ -20,6 +20,7 @@ sh -c "$(wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/ins
 # CONFIG
 find "$HOME/DOTS/arch/config" -mindepth 1 -maxdepth 1 -type d -exec cp -r {} "$HOME/.config" \;
 cp -r "$HOME/DOTS/arch/config/zshrc" "$HOME/.zshrc"
+git -C "$HOME/DOTS" remote set-url origin "git@github.com:mattiasbonte/dots.git"
 
 # AUR
 if ! command -v paru &>/dev/null; then
