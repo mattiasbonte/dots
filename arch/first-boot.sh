@@ -42,15 +42,22 @@ git config --global user.email "info@mattiasbonte.dev"
 git config --global user.name "Mattias B."
 
 # DEV
-pari nvm pnpm-bin
+pari nvm pnpm-bin pyenv
 paci gum glow
 
 # EDIT
 paci bob zed
 bob use nightly
 
+# DOTS
+paru bitwarden-cli chezmoi
+
 # WEB
 pari zen-browser-bin
+
+# AI
+cari aichat
+curl -LsSf https://aider.chat/install.sh | sh
 
 # --
 # GAME
@@ -64,9 +71,6 @@ sudo pacman -Sy
 # Deps
 paci steam wine wine-staging winetricks lutris mangohud gamemode teamspeak3
 paru proton-ge-custom-bin
-
-# AI
-cari aichat
 
 # REBOOT AT THE END
 sudo reboot
