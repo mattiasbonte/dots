@@ -56,7 +56,7 @@ paru bitwarden-cli chezmoi
 pari zen-browser-bin
 
 # AI
-cari aichat
+paci aichat
 curl -LsSf https://aider.chat/install.sh | sh
 
 # --
