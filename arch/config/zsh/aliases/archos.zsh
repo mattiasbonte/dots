@@ -7,14 +7,12 @@ se() { sudoedit $* }
 su() { sudo su $* }
 
 # pacman
-paci() { sudo pacman -Si $* }
-pacs() { sudo pacman -S $* }
+paci() { sudo pacman -S --needed --noconfirm $* }
 pacr() { sudo pacman -R $* }
 
-# yay
-yayi() { yay -Si $* }
-yays() { yay -S $* }
-yayr() { yay -R $* }
+# paru
+pari() { paru -S --needed --noconfirm $* }
+parr() { paru -R $* }
 
 # i3
 update() {

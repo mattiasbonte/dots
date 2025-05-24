@@ -25,7 +25,6 @@ sh -c "$(wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/ins
 
 # AUR
 if ! command -v paru &>/dev/null; then
-    paci base-devel git
     git clone https://aur.archlinux.org/paru.git
     cd paru
     makepkg -si
@@ -70,11 +69,12 @@ paci pacman-contrib
 sudo sed -i '/^#\[multilib\]/,/^#Include = \/etc\/pacman.d\/mirrorlist/ s/^#//' /etc/pacman.conf
 sudo pacman -Sy
 
-# Nvidia - https://github.com/lutris/docs/blob/master/InstallingDrivers.md
+# Nvidia - https://github.com/lutris/docs/blob/master/InstallingDrivers.md#nvidia-1
+# commented because they break my kde setup ( need to figure out which package is doing that )
 # paci nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings vulkan-icd-loader lib32-vulkan-icd-loader
 
-# Intel
-# paci lib32-mesa vulkan-intel lib32-vulkan-intel vulkan-icd-loader lib32-vulkan-icd-loader
+# Intel - https://github.com/lutris/docs/blob/master/InstallingDrivers.md#intel
+paci lib32-mesa vulkan-intel lib32-vulkan-intel vulkan-icd-loader lib32-vulkan-icd-loader
 
 # Wine - https://github.com/lutris/docs/blob/master/WineDependencies.md
 paci wine-staging
