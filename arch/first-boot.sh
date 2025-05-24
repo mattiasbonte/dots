@@ -88,4 +88,4 @@ paci steam lutris teamspeak3
 paci gamemode mangohud
 
 # REBOOT AT THE END
-gum confirm "Reboot now?" && reboot
+gum confirm --default=false "Reboot now?" && reboot || echo "Skipping reboot"
