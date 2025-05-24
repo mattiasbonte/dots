@@ -1,13 +1,3 @@
-# ------------------------------------------------------------------------------------- #
-# CONFIG - https://github.com/alacritty/alacritty/blob/master/extra/man/alacritty.5.scd #
-# ------------------------------------------------------------------------------------- #
-
-# THEME
-import = [
-    "/home/wise/.config/alacritty/themes/catppuccin/mocha.toml",
-    "/home/wise/.config/alacritty/themes/tokyonight/night.toml",
-]
-
 # ----------------------------------------------------------------------------------------- #
 # FONTS - https://github.com/alacritty/alacritty/blob/master/extra/man/alacritty.5.scd#font #
 # ----------------------------------------------------------------------------------------- #
@@ -36,4 +26,15 @@ decorations = "buttonless" # "Full"
 
 [env]
 TERM = "xterm-256color"
+
+[general]
+# ------------------------------------------------------------------------------------- #
+# CONFIG - https://github.com/alacritty/alacritty/blob/master/extra/man/alacritty.5.scd #
+# ------------------------------------------------------------------------------------- #
+
+# THEME
+import = [
+    "/home/wise/.config/alacritty/themes/catppuccin/mocha.toml",
+    "/home/wise/.config/alacritty/themes/tokyonight/night.toml",
+]
 # WINIT_X11_SCALE_FACTOR = "1.0"
