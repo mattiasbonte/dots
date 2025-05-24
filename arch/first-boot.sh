@@ -48,6 +48,7 @@ paci gum glow
 # EDIT
 paci bob zed
 bob use nightly
+paci ttf-jetbrains-mono-nerd
 
 # DOTS
 paru bitwarden-cli chezmoi
@@ -63,14 +64,30 @@ curl -LsSf https://aider.chat/install.sh | sh
 # GAME
 # --
 
-# Uncomments multilib to be able to install packages for gaming
+# Multilib
 paci pacman-contrib
 sudo sed -i '/^#\[multilib\]/,/^#Include = \/etc\/pacman.d\/mirrorlist/ s/^#//' /etc/pacman.conf
 sudo pacman -Sy
 
-# Deps
-paci steam wine wine-staging winetricks lutris mangohud gamemode teamspeak3
-paru proton-ge-custom-bin
+# Nvidia - https://github.com/lutris/docs/blob/master/InstallingDrivers.md#arch--manjaro--other-arch-linux-derivatives
+paci nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings vulkan-icd-loader lib32-vulkan-icd-loader
+
+# Intel
+paci intel-ucode lib32-mesa vulkan-intel lib32-vulkan-intel vulkan-icd-loader lib32-vulkan-icd-loader
+
+# Wine - https://github.com/lutris/docs/blob/master/WineDependencies.md
+paci wine-staging
+paci --asdeps \
+giflib lib32-giflib gnutls lib32-gnutls v4l-utils lib32-v4l-utils libpulse \
+lib32-libpulse alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib sqlite lib32-sqlite libxcomposite \
+lib32-libxcomposite ocl-icd lib32-ocl-icd libva lib32-libva gtk3 lib32-gtk3 gst-plugins-base-libs \
+lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader sdl2-compat lib32-sdl2-compat
+
+# Packs
+paci steam lutris teamspeak3
+paci gamemode mangohud
+
+
 
 # REBOOT AT THE END
 sudo reboot
