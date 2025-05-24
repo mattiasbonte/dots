@@ -1,128 +1,122 @@
 {
-    "archinstall-language": "English",
-    "audio_config": {
-        "audio": "pipewire"
-    },
-    "bootloader": "Systemd-boot",
-    "custom_commands": [
-	    "echo '%wheel ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/wheel",
-	    "chmod 440 /etc/sudoers.d/wheel",
-	    "usermod -aG wheel wise",
-	    "git clone https://github.com/mattiasbonte/dots.git /home/wise/DOTS",
-	    "chown -R wise:wise /home/wise/DOTS"
-    ],
-    "disk_config": {
-        "config_type": "default_layout",
-        "device_modifications": [
-            {
-                "device": "/dev/nvme0n1",
-                "partitions": [
-                    {
-                        "btrfs": [],
-                        "dev_path": null,
-                        "flags": [
-                            "boot",
-                            "esp"
-                        ],
-                        "fs_type": "fat32",
-                        "mount_options": [],
-                        "mountpoint": "/boot",
-                        "obj_id": "1e73f926-8c18-4cfe-bdca-9c98cc54ffaa",
-                        "size": {
-                            "sector_size": {
-                                "unit": "B",
-                                "value": 512
-                            },
-                            "unit": "GiB",
-                            "value": 1
-                        },
-                        "start": {
-                            "sector_size": {
-                                "unit": "B",
-                                "value": 512
-                            },
-                            "unit": "MiB",
-                            "value": 1
-                        },
-                        "status": "create",
-                        "type": "primary"
-                    },
-                    {
-                        "btrfs": [],
-                        "dev_path": null,
-                        "flags": [],
-                        "fs_type": "ext4",
-                        "mount_options": [],
-                        "mountpoint": "/",
-                        "obj_id": "9b65b917-7560-42af-9a89-cc03716be7cb",
-                        "size": {
-                            "sector_size": {
-                                "unit": "B",
-                                "value": 512
-                            },
-                            "unit": "B",
-                            "value": 511033999360
-                        },
-                        "start": {
-                            "sector_size": {
-                                "unit": "B",
-                                "value": 512
-                            },
-                            "unit": "B",
-                            "value": 1074790400
-                        },
-                        "status": "create",
-                        "type": "primary"
-                    }
-                ],
-                "wipe": true
-            }
-        ]
-    },
-    "hostname": "wise-desktop",
-    "kernels": [
-        "linux-zen"
-    ],
-    "locale_config": {
-        "kb_layout": "us",
-        "sys_enc": "UTF-8",
-        "sys_lang": "en_US.UTF-8"
-    },
-    "network_config": {
-        "type": "nm"
-    },
-    "ntp": true,
-    "packages": [
-	    "base-devel",
-	    "alacritty",
-	    "starship",
-	    "keychain",
-	    "lazygit",
-	    "aichat",
-	    "tmux",
-	    "curl",
-	    "rust",
-	    "git",
-	    "zsh",
-	    "go",
-	    "jq"
-    ],
-    "parallel_downloads": 0,
-    "profile_config": {
-        "gfx_driver": "Nvidia (proprietary)",
-        "greeter": "sddm",
-        "profile": {
-            "custom_settings": {
-		    "KDE Plasma": {}
+  "archinstall-language": "English",
+  "audio_config": {
+    "audio": "pipewire"
+  },
+  "bootloader": "Systemd-boot",
+  "custom_commands": [
+    "echo '%wheel ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/wheel",
+    "chmod 440 /etc/sudoers.d/wheel",
+    "usermod -aG wheel wise",
+    "git clone https://github.com/mattiasbonte/dots.git /home/wise/DOTS",
+    "chown -R wise:wise /home/wise/DOTS"
+  ],
+  "disk_config": {
+    "config_type": "default_layout",
+    "device_modifications": [
+      {
+        "device": "/dev/nvme0n1",
+        "partitions": [
+          {
+            "btrfs": [],
+            "dev_path": null,
+            "flags": ["boot", "esp"],
+            "fs_type": "fat32",
+            "mount_options": [],
+            "mountpoint": "/boot",
+            "obj_id": "1e73f926-8c18-4cfe-bdca-9c98cc54ffaa",
+            "size": {
+              "sector_size": {
+                "unit": "B",
+                "value": 512
+              },
+              "unit": "GiB",
+              "value": 1
             },
-            "details": [
-		    "KDE Plasma"
-            ],
-            "main": "Desktop"
-        }
-    },
-    "services": [],
-    "swap": true,
-    "timezone": "Europe/Brussels",
-    "version": null
+            "start": {
+              "sector_size": {
+                "unit": "B",
+                "value": 512
+              },
+              "unit": "MiB",
+              "value": 1
+            },
+            "status": "create",
+            "type": "primary"
+          },
+          {
+            "btrfs": [],
+            "dev_path": null,
+            "flags": [],
+            "fs_type": "ext4",
+            "mount_options": [],
+            "mountpoint": "/",
+            "obj_id": "9b65b917-7560-42af-9a89-cc03716be7cb",
+            "size": {
+              "sector_size": {
+                "unit": "B",
+                "value": 512
+              },
+              "unit": "B",
+              "value": 511033999360
+            },
+            "start": {
+              "sector_size": {
+                "unit": "B",
+                "value": 512
+              },
+              "unit": "B",
+              "value": 1074790400
+            },
+            "status": "create",
+            "type": "primary"
+          }
+        ],
+        "wipe": true
+      }
+    ]
+  },
+  "hostname": "wise-desktop",
+  "kernels": ["linux-zen"],
+  "locale_config": {
+    "kb_layout": "us",
+    "sys_enc": "UTF-8",
+    "sys_lang": "en_US.UTF-8"
+  },
+  "network_config": {
+    "type": "nm"
+  },
+  "ntp": true,
+  "packages": [
+    "base-devel",
+    "alacritty",
+    "starship",
+    "keychain",
+    "lazygit",
+    "aichat",
+    "tmux",
+    "curl",
+    "rust",
+    "git",
+    "zsh",
+    "go",
+    "jq"
+  ],
+  "parallel_downloads": 0,
+  "profile_config": {
+    "gfx_driver": "Nvidia (proprietary)",
+    "greeter": "sddm",
+    "profile": {
+      "custom_settings": {
+        "Awesome": {},
+        "KDE Plasma": {}
+      },
+      "details": ["Awesome", "KDE Plasma"],
+      "main": "Desktop"
+    }
+  },
+  "services": [],
+  "swap": true,
+  "timezone": "Europe/Brussels",
+  "version": null
 }
