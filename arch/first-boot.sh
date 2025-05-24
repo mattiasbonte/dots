@@ -41,7 +41,6 @@ paci git lazygit github-cli git-delta difftastic
 git config --global user.email "info@mattiasbonte.dev"
 git config --global user.name "Mattias B."
 
-
 # DEV
 pari nvm pnpm-bin pyenv
 paci gum glow
@@ -88,14 +87,6 @@ paci --asdeps \
 # Packs
 paci steam lutris teamspeak3
 paci gamemode mangohud
-
-# Shortcuts
-z ~/DOTS
-z ~/.config
-z ~/Downloads
-z ~/DEV/GO/breaks
-z ~/.local/share/chezmoi
-z ~/DEV/PROFESSION/WINTRO/wintro-mono/app
 
 # REBOOT AT THE END
 gum confirm --default=false "Reboot now?" && reboot || echo "Skipping reboot"
