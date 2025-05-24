@@ -51,7 +51,7 @@ bob use nightly
 paci ttf-jetbrains-mono-nerd
 
 # DOTS
-paru bitwarden-cli chezmoi
+pari bitwarden-cli chezmoi
 
 # WEB
 pari zen-browser-bin
