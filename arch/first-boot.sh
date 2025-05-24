@@ -21,7 +21,7 @@ cp -r "$HOME/DOTS/arch/config/zshrc" "$HOME/.zshrc"
 # ZSH
 paci zsh zsh-completions starship alacritty tmux
 sudo chsh -s $(which zsh) $USER
-sh -c "$(wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
+sh -c "$(wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)" "" --unattended
 
 # AUR
 if ! command -v paru &>/dev/null; then
