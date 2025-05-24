@@ -69,26 +69,23 @@ paci pacman-contrib
 sudo sed -i '/^#\[multilib\]/,/^#Include = \/etc\/pacman.d\/mirrorlist/ s/^#//' /etc/pacman.conf
 sudo pacman -Sy
 
-# Nvidia - https://github.com/lutris/docs/blob/master/InstallingDrivers.md#nvidia-1
-# commented because they break my kde setup ( need to figure out which package is doing that )
-# paci nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings vulkan-icd-loader lib32-vulkan-icd-loader
-
 # Intel - https://github.com/lutris/docs/blob/master/InstallingDrivers.md#intel
 paci lib32-mesa vulkan-intel lib32-vulkan-intel vulkan-icd-loader lib32-vulkan-icd-loader
+
+# Nvidia - https://github.com/lutris/docs/blob/master/InstallingDrivers.md#nvidia-1
+paci nvidia nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings vulkan-icd-loader lib32-vulkan-icd-loader
 
 # Wine - https://github.com/lutris/docs/blob/master/WineDependencies.md
 paci wine-staging
 paci --asdeps \
-giflib lib32-giflib gnutls lib32-gnutls v4l-utils lib32-v4l-utils libpulse \
-lib32-libpulse alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib sqlite lib32-sqlite libxcomposite \
-lib32-libxcomposite ocl-icd lib32-ocl-icd libva lib32-libva gtk3 lib32-gtk3 gst-plugins-base-libs \
-lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader sdl2-compat lib32-sdl2-compat
+    giflib lib32-giflib gnutls lib32-gnutls v4l-utils lib32-v4l-utils libpulse \
+    lib32-libpulse alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib sqlite lib32-sqlite libxcomposite \
+    lib32-libxcomposite ocl-icd lib32-ocl-icd libva lib32-libva gtk3 lib32-gtk3 gst-plugins-base-libs \
+    lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader sdl2-compat lib32-sdl2-compat
 
 # Packs
 paci steam lutris teamspeak3
 paci gamemode mangohud
-
-
 
 # REBOOT AT THE END
 reboot
