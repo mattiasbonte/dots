@@ -12,15 +12,15 @@ cari() { [ -z "$1" ] && return 0 || command -v cargo >/dev/null 2>&1 && cargo in
 paci base-devel git rust go
 paci jq xsel xclip btop wget atool aria2 cmake keychain xdotool bat tree age mpv
 
-# ZSH
-paci zsh zsh-completions starship alacritty tmux
-sudo chsh -s $(which zsh) $USER
-sh -c "$(wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
-
 # CONFIG
 find "$HOME/DOTS/arch/config" -mindepth 1 -maxdepth 1 -type d -exec cp -r {} "$HOME/.config" \;
 cp -r "$HOME/DOTS/arch/config/zshrc" "$HOME/.zshrc"
 git -C "$HOME/DOTS" remote set-url origin "git@github.com:mattiasbonte/dots.git"
+
+# ZSH
+paci zsh zsh-completions starship alacritty tmux
+sudo chsh -s $(which zsh) $USER
+sh -c "$(wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
 
 # AUR
 if ! command -v paru &>/dev/null; then
@@ -90,4 +90,4 @@ paci gamemode mangohud
 
 
 # REBOOT AT THE END
-sudo reboot
+reboot
