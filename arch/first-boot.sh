@@ -42,6 +42,7 @@ git config --global user.email "info@mattiasbonte.dev"
 git config --global user.name "Mattias B."
 
 # DEV
+paci bitwarden bitwarden-cli # added here because needs old node version to install
 pari nvm pnpm-bin pyenv
 paci gum glow
 
@@ -51,7 +52,6 @@ bob use nightly
 paci ttf-jetbrains-mono-nerd
 
 # DOTS
-paci bitwarden bitwarden-cli
 pari chezmoi
 
 # WEB
