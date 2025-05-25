@@ -4,8 +4,16 @@
 # --
 
 # Checks
-gum confirm "Have you authorized github-cli (so that your ssh is set up correctly)?" || gh auth login
-gum confirm "Have you authorized bitwarden-cli (needed for chezmoi)?" || bw login
+if ! command -v gh &> /dev/null; then
+  echo "Install github-cli first: 'sudo pacman -S gh'"
+  exit 1
+fi
+if ! command -v bw &> /dev/null; then
+  echo "Install bitwarden-cli first: 'sudo pacman -S bitwarden-cli'"
+  exit 1
+fi
+gum confirm --default=false "Have you authorized github-cli (so that your github ssh key is set up)?" || gh auth login
+gum confirm --default=false "Have you authorized bitwarden-cli (needed for chezmoi)?" || bw login
 
 # Shortcuts
 z ~/DOTS
@@ -20,4 +28,4 @@ export BW_SESSION=$(bw unlock --raw)
 sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply git@github.com:mattiasbonte/dotfiles.git
 unset BW_SESSION
 
-gum confirm "Reboot now?" && reboot || "Reboot later"
+gum confirm --default=false "Reboot now?" && reboot || "Reboot later"
