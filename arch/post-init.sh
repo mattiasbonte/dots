@@ -1,3 +1,5 @@
+#!/usr/bin/zsh
+
 # --
 # POST INIT
 # @note only after the init and github ssh key have been setup
