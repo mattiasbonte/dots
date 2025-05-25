@@ -17,6 +17,7 @@ gum confirm --default=false "Have you authorized bitwarden-cli (needed for chezm
 
 # CHEZMOI
 gum confirm "Initialize chezmoi?" && {
+    echo "Initializing chezmoi..."
     export BW_SESSION=$(bw unlock --raw)
     sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply git@github.com:mattiasbonte/dotfiles.git
     unset BW_SESSION
@@ -34,4 +35,4 @@ z ~/.local/share/chezmoi
 z ~/DEV/PROFESSION/WINTRO/wintro-mono/app
 
 # Reboot
-gum confirm --default=false "Reboot now?" && reboot || "Reboot later"
+gum confirm --default=false "Reboot now?" && { echo "Rebooting system..."; reboot; } || echo "Reboot skipped. You can reboot manually later."
