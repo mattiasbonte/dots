@@ -10,7 +10,7 @@ cari() { [ -z "$1" ] && return 0 || command -v cargo >/dev/null 2>&1 && cargo in
 
 # BASE
 paci base-devel git rust go
-paci jq xsel xclip btop wget atool aria2 cmake keychain xdotool bat tree age mpv
+paci jq xsel xclip btop wget atool aria2 cmake keychain xdotool bat tree age mpv gum glow bitwarden bitwarden-cli
 
 # CONFIG
 git -C "$HOME/DOTS" pull
@@ -42,9 +42,8 @@ git config --global user.email "info@mattiasbonte.dev"
 git config --global user.name "Mattias B."
 
 # DEV
-paci bitwarden bitwarden-cli # added here because needs old node version to install
-pari nvm pnpm-bin pyenv
-paci gum glow
+pari pnpm-bin pyenv
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash # NVM
 
 # EDIT
 paci bob zed

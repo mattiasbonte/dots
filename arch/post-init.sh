@@ -27,6 +27,8 @@ gum confirm "Initialize chezmoi?" && {
 
 # Post Chezmoi Setup
 source ~/.zshrc
+nvm install stable
+nvm use stable
 
 # Shortcuts
 z ~/DOTS
