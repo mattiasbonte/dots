@@ -16,9 +16,11 @@ gum confirm --default=false "Have you authorized github-cli (so that your github
 gum confirm --default=false "Have you authorized bitwarden-cli (needed for chezmoi)?" || bw login
 
 # CHEZMOI
-export BW_SESSION=$(bw unlock --raw)
-sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply git@github.com:mattiasbonte/dotfiles.git
-unset BW_SESSION
+gum confirm "Initialize chezmoi?" && {
+    export BW_SESSION=$(bw unlock --raw)
+    sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply git@github.com:mattiasbonte/dotfiles.git
+    unset BW_SESSION
+}
 
 # Post Chezmoi Setup
 source ~/.zshrc
