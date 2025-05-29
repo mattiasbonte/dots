@@ -85,7 +85,7 @@ paci --asdeps \
 
 # Packs
 paci steam lutris teamspeak3
-paci gamemode mangohud
+pari protonplus
 
 # REBOOT AT THE END
 gum confirm --default=false "Reboot now?" && reboot || echo "Skipping reboot"
