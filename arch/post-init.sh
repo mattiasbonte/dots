@@ -19,6 +19,7 @@ gum confirm --default=false "Have you authorized bitwarden-cli (needed for chezm
 
 # CHEZMOI
 gum confirm "Initialize chezmoi?" && {
+    bw sync
     echo "Initializing chezmoi..."
     export BW_SESSION=$(bw unlock --raw)
     sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply git@github.com:mattiasbonte/dotfiles.git
