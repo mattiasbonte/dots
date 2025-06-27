@@ -26,7 +26,14 @@ sudo Reject /dev/sdc
 ```
 
 # Boot
+## Tuxedo
+- Put usb into right port next to power supply
+- Restart laptop
+- Spam `del` key to enter the BIOS menu
+- In boot menu select boot order to USB first
+- Reboot (don't forget to change this again after installation)
 
+## Desktop
 - Select `reboot into firmware interface`
 - Select `F9` Boot Menu
 - Select the iPXE USB Drive
@@ -41,7 +48,7 @@ sudo Reject /dev/sdc
 ```bash
 # Mount the installation USB
 mkdir /mnt/usb
-mount /dev/sda /mnt/usb
+mount /dev/sda1 /mnt/usb
 
 # Update installer
 pacman -Sy && pacman -S --noconfirm archinstall
@@ -71,4 +78,12 @@ select reboot
 
 ```
 
+```
+
+# [Tuxedo Specific](https://www.tuxedocomputers.com/en/Arch-Linux-and-Manjaro-on-TUXEDO-computers.tuxedo)
+
+```bash
+paru -S tuxedo-control-center-bin 
+paru -S tuxedo-drivers-dkms 
+paru -S linux-headers
 ```
