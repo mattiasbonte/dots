@@ -60,6 +60,10 @@ pari zen-browser-bin
 paci aichat
 curl -LsSf https://aider.chat/install.sh | sh
 
+# MISC
+paci thunderbird
+pari slack-desktop
+
 # --
 # GAME
 # --
