@@ -68,7 +68,7 @@ paci redis thunderbird slack-desktop
 # --
 
 # Awesome WM
-paci arandr rofi pavucontrol
+paci arandr pavucontrol
 
 # Multilib
 paci pacman-contrib
