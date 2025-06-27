@@ -68,7 +68,10 @@ paci redis thunderbird slack-desktop
 # --
 
 # Awesome WM
-paci arandr pavucontrol
+paci arandr pavucontrol redshift
+    # arandr: screen management
+    # pavucontrol: audio/video control
+    # redshift: night light -> redshift -0 3000
 
 # Multilib
 paci pacman-contrib
