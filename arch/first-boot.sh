@@ -84,7 +84,7 @@ paci --asdeps \
     lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader sdl2-compat lib32-sdl2-compat
 
 # Packs
-paci steam lutris teamspeak3
+paci steam lutris teamspeak3 discord
 pari protonplus
 
 # REBOOT AT THE END
