@@ -38,5 +38,9 @@ z ~/DEV/GO/breaks
 z ~/.local/share/chezmoi
 z ~/DEV/PROFESSION/WINTRO/wintro-mono/app
 
+# Personal Config
+systemctl --user enable wise-config.service
+systemctl --user start wise-config.service
+
 # Reboot
 gum confirm --default=false "Reboot now?" && { echo "Rebooting system..."; reboot; } || echo "Reboot skipped. You can reboot manually later."
