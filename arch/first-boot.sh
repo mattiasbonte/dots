@@ -61,12 +61,14 @@ paci aichat
 curl -LsSf https://aider.chat/install.sh | sh
 
 # MISC
-paci thunderbird
-pari slack-desktop
+paci redis thunderbird slack-desktop
 
 # --
 # GAME
 # --
+
+# Awesome WM
+paci arandr rofi pavucontrol
 
 # Multilib
 paci pacman-contrib
