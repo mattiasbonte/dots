@@ -10,7 +10,7 @@ cari() { [ -z "$1" ] && return 0 || command -v cargo >/dev/null 2>&1 && cargo in
 
 # BASE
 paci base-devel git rust go
-paci jq xsel xclip btop wget atool aria2 cmake keychain xdotool bat tree age mpv gum glow bitwarden bitwarden-cli
+paci jq xsel xclip btop wget atool aria2 cmake keychain xdotool bat tree age mpv gum glow bitwarden bitwarden-cli xprintidle
 
 # CONFIG
 git -C "$HOME/DOTS" pull
@@ -42,7 +42,7 @@ git config --global user.email "info@mattiasbonte.dev"
 git config --global user.name "Mattias B."
 
 # DEV
-pari pnpm-bin pyenv
+pari pnpm-bin pyenv luarocks
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash # NVM
 
 # EDIT
@@ -61,7 +61,7 @@ paci aichat
 curl -LsSf https://aider.chat/install.sh | sh
 
 # MISC
-paci redis thunderbird slack-desktop
+paci redis thunderbird slack-desktop flameshot
 
 # --
 # GAME

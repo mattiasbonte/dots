@@ -38,6 +38,11 @@ z ~/DEV/GO/breaks
 z ~/.local/share/chezmoi
 z ~/DEV/PROFESSION/WINTRO/wintro-mono/app
 
+# --
+# Sytemd
+# --
+loginctl enable-linger $USER
+
 # Personal Config
 systemctl --user enable wise-config.service
 systemctl --user start wise-config.service
