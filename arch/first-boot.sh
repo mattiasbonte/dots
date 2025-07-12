@@ -33,7 +33,8 @@ if ! command -v paru &>/dev/null; then
 fi
 
 # FM
-paci yazi ffmpeg 7zip jq poppler fd ripgrep fzf zoxide imagemagick trash-cli mpv unrar unzip
+paci yazi ffmpeg 7zip jq poppler fd ripgrep fzf zoxide imagemagick trash-cli mpv
+
 pari resvg
 
 # GIT
@@ -42,7 +43,7 @@ git config --global user.email "info@mattiasbonte.dev"
 git config --global user.name "Mattias B."
 
 # DEV
-pari pnpm-bin pyenv luarocks
+pari pnpm-bin pyenv luarocks postgresql-libs
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash # NVM
 
 # EDIT
@@ -61,7 +62,10 @@ paci aichat
 curl -LsSf https://aider.chat/install.sh | sh
 
 # MISC
-paci redis thunderbird slack-desktop flameshot
+paci redis thunderbird slack-desktop flameshot copyq easyeffects
+
+# LAPTOP
+paci xorg-xinput # touchpad
 
 # --
 # GAME
