@@ -56,13 +56,14 @@ pari chezmoi
 
 # WEB
 pari zen-browser-bin
+paci chromium
 
 # AI
 paci aichat
 curl -LsSf https://aider.chat/install.sh | sh
 
 # MISC
-paci redis thunderbird slack-desktop flameshot copyq easyeffects
+paci redis thunderbird slack-desktop flameshot copyq easyeffects xournalpp yt-dlp
 
 # LAPTOP
 paci xorg-xinput # touchpad
