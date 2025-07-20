@@ -10,7 +10,7 @@ cari() { [ -z "$1" ] && return 0 || command -v cargo >/dev/null 2>&1 && cargo in
 
 # BASE
 paci base-devel git rust go
-paci jq xsel xclip btop wget atool aria2 cmake keychain xdotool bat tree age mpv gum glow bitwarden bitwarden-cli xprintidle
+paci jq xsel xclip btop wget atool aria2 cmake keychain xdotool bat tree age mpv gum glow bitwarden bitwarden-cli xprintidle dex
 
 # CONFIG
 git -C "$HOME/DOTS" pull
@@ -87,7 +87,8 @@ sudo pacman -Sy
 paci lib32-mesa vulkan-intel lib32-vulkan-intel vulkan-icd-loader lib32-vulkan-icd-loader
 
 # Nvidia - https://github.com/lutris/docs/blob/master/InstallingDrivers.md#nvidia-1
-paci nvidia nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings vulkan-icd-loader lib32-vulkan-icd-loader
+paci nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings vulkan-icd-loader lib32-vulkan-icd-loader
+
 
 # Wine - https://github.com/lutris/docs/blob/master/WineDependencies.md
 paci wine-staging
