@@ -60,7 +60,16 @@ paci chromium
 
 # AI
 paci aichat
-curl -LsSf https://aider.chat/install.sh | sh
+
+# DICTATION
+pari nerd-dictation
+
+if gum confirm "Download nerd-dictation voice model?"; then
+    wget https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip
+    mkdir -p "$HOME/.config/nerd-dictation/model"
+    unzip -q vosk-model-small-en-us-0.15.zip -d "$HOME/.config/nerd-dictation/model"
+    rm vosk-model-small-en-us-0.15.zip
+fi
 
 # MISC
 paci redis thunderbird slack-desktop flameshot copyq easyeffects xournalpp yt-dlp
