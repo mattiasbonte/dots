@@ -65,27 +65,31 @@ paci aichat
 pari nerd-dictation
 
 if gum confirm "Download nerd-dictation voice model?"; then
-    wget https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip
-    mkdir -p "$HOME/.config/nerd-dictation/model"
-    unzip -q vosk-model-small-en-us-0.15.zip -d "$HOME/.config/nerd-dictation/model"
-    rm vosk-model-small-en-us-0.15.zip
+    MODEL_FILE="vosk-model-en-us-0.42-gigaspeech.zip"
+    wget "https://alphacephei.com/vosk/models/$MODEL_FILE"
+    [ ! -d "$HOME/.config/nerd-dictation/model" ] && mkdir -p "$HOME/.config/nerd-dictation/model"
+    unzip -q "$MODEL_FILE" -d "$HOME/.config/nerd-dictation/model"
+    rm "$MODEL_FILE"
 fi
 
 # MISC
 paci redis thunderbird slack-desktop flameshot copyq easyeffects xournalpp yt-dlp
 
-# LAPTOP
-paci xorg-xinput # touchpad
-
-# --
-# GAME
-# --
-
-# Awesome WM
+# WM
 paci arandr pavucontrol redshift
     # arandr: screen management
     # pavucontrol: audio/video control
     # redshift: night light -> redshift -0 3000
+pari lain-git
+    # lain-git: Awesome WM complements - provides additional layouts, widgets, and utilities for Awesome window manager
+
+# LAPTOP
+paci xorg-xinput # touchpad
+
+
+# --
+# GAME
+# --
 
 # Multilib
 paci pacman-contrib
