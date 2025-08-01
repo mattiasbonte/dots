@@ -85,6 +85,8 @@ pari lain-git
 
 # LAPTOP
 paci xorg-xinput # touchpad
+paci blueman # bluetooth
+pari unified-remote-server # remote control
 
 
 # --
