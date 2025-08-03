@@ -32,6 +32,8 @@ nvm install node
 
 # Shortcuts
 z ~/DOTS
+z ~/MIND
+z ~/NOTES
 z ~/.config
 z ~/Downloads
 z ~/DEV/GO/breaks

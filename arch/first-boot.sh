@@ -65,7 +65,8 @@ paci chromium
 paci aichat
 
 # MISC
-paci redis thunderbird slack-desktop flameshot copyq easyeffects xournalpp yt-dlp
+paci valkey thunderbird flameshot copyq easyeffects xournalpp yt-dlp
+pari slack-desktop
 
 # WM
 paci arandr pavucontrol redshift
