@@ -3,6 +3,9 @@
 # @note installs all required packages to be able to quickly get the system up and running
 # --
 
+# UPDATE DBS
+sudo pacman -Syu && paru -Syu
+
 # FN
 paci() { [ -z "$1" ] && return 0 || command -v pacman >/dev/null 2>&1 && sudo pacman -S --needed --noconfirm "$@" || echo "pacman not found, skipping: $@"; }
 pari() { [ -z "$1" ] && return 0 || command -v paru >/dev/null 2>&1 && paru -S --needed --noconfirm "$@" || echo "paru not found, skipping: $@"; }
@@ -10,7 +13,7 @@ cari() { [ -z "$1" ] && return 0 || command -v cargo >/dev/null 2>&1 && cargo in
 
 # BASE
 paci base-devel git rust go
-paci jq xsel xclip btop wget atool aria2 cmake keychain xdotool bat tree age mpv gum glow bitwarden bitwarden-cli xprintidle dex
+paci jq xsel xclip btop wget atool aria2 cmake keychain xdotool bat tree age mpv gum glow bitwarden bitwarden-cli xprintidle dex alsa-utils
 
 # CONFIG
 git -C "$HOME/DOTS" pull
@@ -61,17 +64,6 @@ paci chromium
 # AI
 paci aichat
 
-# DICTATION
-pari nerd-dictation
-
-if gum confirm "Download nerd-dictation voice model?"; then
-    MODEL_FILE="vosk-model-en-us-0.42-gigaspeech.zip"
-    wget "https://alphacephei.com/vosk/models/$MODEL_FILE"
-    [ ! -d "$HOME/.config/nerd-dictation/model" ] && mkdir -p "$HOME/.config/nerd-dictation/model"
-    unzip -q "$MODEL_FILE" -d "$HOME/.config/nerd-dictation/model"
-    rm "$MODEL_FILE"
-fi
-
 # MISC
 paci redis thunderbird slack-desktop flameshot copyq easyeffects xournalpp yt-dlp
 
@@ -102,7 +94,7 @@ sudo pacman -Sy
 paci lib32-mesa vulkan-intel lib32-vulkan-intel vulkan-icd-loader lib32-vulkan-icd-loader
 
 # Nvidia - https://github.com/lutris/docs/blob/master/InstallingDrivers.md#nvidia-1
-paci nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings vulkan-icd-loader lib32-vulkan-icd-loader
+paci nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings nvidia-prime vulkan-icd-loader lib32-vulkan-icd-loader
 
 
 # Wine - https://github.com/lutris/docs/blob/master/WineDependencies.md
@@ -117,5 +109,13 @@ paci --asdeps \
 paci steam lutris teamspeak3 discord
 pari protonplus
 
+# DICTATION
+gum confirm --default=false "Install Whisper.cpp for dictation?" && {
+    cd ~
+    git clone https://github.com/ggerganov/whisper.cpp
+    cd whisper.cpp
+    make  # Simple make, no cmake needed
+    bash models/download-ggml-model.sh small
+} || echo "Skipping Whisper.cpp installation"
 # REBOOT AT THE END
 gum confirm --default=false "Reboot now?" && reboot || echo "Skipping reboot"
