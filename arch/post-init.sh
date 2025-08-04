@@ -53,6 +53,8 @@ systemctl --user start wise-config.service
 sudo systemctl start valkey.service
 sudo systemctl enable valkey.service
 
+# Claude
+npm install -g @anthropic-ai/claude-code
 
 # Reboot
 gum confirm --default=false "Reboot now?" && { echo "Rebooting system..."; reboot; } || echo "Reboot skipped. You can reboot manually later."
