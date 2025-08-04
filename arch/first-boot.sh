@@ -72,7 +72,7 @@ paci valkey thunderbird flameshot copyq easyeffects xournalpp yt-dlp
 pari slack-desktop
 
 # WM
-paci arandr pavucontrol redshift
+paci arandr autorandr pavucontrol redshift
     # arandr: screen management
     # pavucontrol: audio/video control
     # redshift: night light -> redshift -0 3000
