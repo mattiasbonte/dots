@@ -48,6 +48,7 @@ loginctl enable-linger $USER
 # Personal Config
 systemctl --user enable wise-config.service
 systemctl --user start wise-config.service
+systemctl --user enable bluetooth.service
 
 # Redis
 sudo systemctl start valkey.service

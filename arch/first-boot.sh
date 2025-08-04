@@ -23,8 +23,11 @@ git -C "$HOME/DOTS" remote set-url origin "git@github.com:mattiasbonte/dots.git"
 # ZSH
 paci zsh zsh-completions starship alacritty tmux
 sudo chsh -s $(which zsh) $USER
-sh -c "$(wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)" "" --unattended
-cp -r "$HOME/DOTS/arch/config/zshrc" "$HOME/.zshrc"
+
+gum confirm --default=false "Install Oh My Zsh?" && {
+    sh -c "$(wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)" "" --unattended
+    cp -r "$HOME/DOTS/arch/config/zshrc" "$HOME/.zshrc"
+} || echo "Skipping Oh My Zsh installation"
 
 # AUR
 if ! command -v paru &>/dev/null; then
