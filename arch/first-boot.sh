@@ -24,10 +24,12 @@ git -C "$HOME/DOTS" remote set-url origin "git@github.com:mattiasbonte/dots.git"
 paci zsh zsh-completions starship alacritty tmux
 sudo chsh -s $(which zsh) $USER
 
-gum confirm --default=false "Install Oh My Zsh?" && {
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
     sh -c "$(wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)" "" --unattended
     cp -r "$HOME/DOTS/arch/config/zshrc" "$HOME/.zshrc"
-} || echo "Skipping Oh My Zsh installation"
+else
+    echo "Oh My Zsh already installed, skipping installation"
+fi
 
 # AUR
 if ! command -v paru &>/dev/null; then
@@ -50,7 +52,7 @@ git config --global user.name "Mattias B."
 
 # DEV
 pari pnpm-bin pyenv luarocks postgresql-libs
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash # NVM
+command -v nvm >/dev/null 2>&1 || curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash # NVM
 
 # EDIT
 paci bob zed
@@ -114,12 +116,15 @@ paci steam lutris teamspeak3 discord
 pari protonplus
 
 # DICTATION
-gum confirm --default=false "Install Whisper.cpp for dictation?" && {
+if [ ! -d "$HOME/whisper.cpp" ]; then
     cd ~
     git clone https://github.com/ggerganov/whisper.cpp
     cd whisper.cpp
     make  # Simple make, no cmake needed
     bash models/download-ggml-model.sh small
-} || echo "Skipping Whisper.cpp installation"
+else
+    echo "Whisper.cpp already installed, skipping installation"
+fi
+
 # REBOOT AT THE END
 gum confirm --default=false "Reboot now?" && reboot || echo "Skipping reboot"
