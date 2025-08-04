@@ -98,7 +98,7 @@ sudo pacman -Sy
 paci lib32-mesa vulkan-intel lib32-vulkan-intel vulkan-icd-loader lib32-vulkan-icd-loader
 
 # Nvidia - https://github.com/lutris/docs/blob/master/InstallingDrivers.md#nvidia-1
-paci nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings nvidia-prime vulkan-icd-loader lib32-vulkan-icd-loader
+paci nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings vulkan-icd-loader lib32-vulkan-icd-loader
 
 
 # Wine - https://github.com/lutris/docs/blob/master/WineDependencies.md
