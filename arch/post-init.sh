@@ -56,6 +56,9 @@ systemctl --user enable autorandr.service
 sudo systemctl start valkey.service
 sudo systemctl enable valkey.service
 
+# Spotify
+go install github.com/envoy49/go-spotify-cli@latest
+
 # Claude
 npm install -g @anthropic-ai/claude-code
 
