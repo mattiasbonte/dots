@@ -126,5 +126,10 @@ else
     echo "Whisper.cpp already installed, skipping installation"
 fi
 
+gum confirm --default=false "Are you on a Tuxedo laptop?" && {
+    pari tuxedo-control-center-bin tuxedo-drivers-dkms 
+} || echo "Skipping Tuxedo-specific packages"
+
+
 # REBOOT AT THE END
 gum confirm --default=false "Reboot now?" && reboot || echo "Skipping reboot"
