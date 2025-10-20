@@ -126,6 +126,29 @@ else
     echo "Whisper.cpp already installed, skipping installation"
 fi
 
+# TTS (Piper)
+pari piper-tts
+
+# Install Piper voices
+mkdir -p "$HOME/.local/share/piper/voices"
+cd "$HOME/.local/share/piper/voices"
+
+gum confirm --default=true "Install Piper TTS voices (Amy - female, Joe - male)?" && {
+    echo "Downloading Amy voice (female)..."
+    wget -q --show-progress -O en_US-amy-medium.onnx \
+        "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/amy/medium/en_US-amy-medium.onnx"
+    wget -q --show-progress -O en_US-amy-medium.onnx.json \
+        "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/amy/medium/en_US-amy-medium.onnx.json"
+
+    echo "Downloading Joe voice (male)..."
+    wget -q --show-progress -O en_US-joe-medium.onnx \
+        "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/joe/medium/en_US-joe-medium.onnx"
+    wget -q --show-progress -O en_US-joe-medium.onnx.json \
+        "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/joe/medium/en_US-joe-medium.onnx.json"
+
+    echo "✅ Piper voices installed"
+} || echo "Skipping Piper voice installation"
+
 gum confirm --default=false "Are you on a Tuxedo laptop?" && {
     pari tuxedo-control-center-bin tuxedo-drivers-dkms 
 } || echo "Skipping Tuxedo-specific packages"
