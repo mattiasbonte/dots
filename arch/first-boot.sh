@@ -133,20 +133,20 @@ pari piper-tts
 mkdir -p "$HOME/.local/share/piper/voices"
 cd "$HOME/.local/share/piper/voices"
 
-gum confirm --default=true "Install Piper TTS voices (Amy - female, Joe - male)?" && {
-    echo "Downloading Amy voice (female)..."
-    wget -q --show-progress -O en_US-amy-medium.onnx \
-        "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/amy/medium/en_US-amy-medium.onnx"
-    wget -q --show-progress -O en_US-amy-medium.onnx.json \
-        "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/amy/medium/en_US-amy-medium.onnx.json"
+gum confirm --default=true "Install Piper TTS voices (LJSpeech - female, Ryan - male) (high quality)?" && {
+    echo "Downloading LJSpeech voice (female, high quality)..."
+    wget -q --show-progress -O en_US-ljspeech-high.onnx \
+        "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/ljspeech/high/en_US-ljspeech-high.onnx"
+    wget -q --show-progress -O en_US-ljspeech-high.onnx.json \
+        "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/ljspeech/high/en_US-ljspeech-high.onnx.json"
 
-    echo "Downloading Joe voice (male)..."
-    wget -q --show-progress -O en_US-joe-medium.onnx \
-        "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/joe/medium/en_US-joe-medium.onnx"
-    wget -q --show-progress -O en_US-joe-medium.onnx.json \
-        "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/joe/medium/en_US-joe-medium.onnx.json"
+    echo "Downloading Ryan voice (male, high quality)..."
+    wget -q --show-progress -O en_US-ryan-high.onnx \
+        "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/ryan/high/en_US-ryan-high.onnx"
+    wget -q --show-progress -O en_US-ryan-high.onnx.json \
+        "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/ryan/high/en_US-ryan-high.onnx.json"
 
-    echo "✅ Piper voices installed"
+    echo "✅ Piper high-quality voices installed"
 } || echo "Skipping Piper voice installation"
 
 gum confirm --default=false "Are you on a Tuxedo laptop?" && {
