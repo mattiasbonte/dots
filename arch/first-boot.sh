@@ -133,14 +133,14 @@ pari piper-tts
 mkdir -p "$HOME/.local/share/piper/voices"
 cd "$HOME/.local/share/piper/voices"
 
-gum confirm --default=true "Install Piper TTS voices (LJSpeech - female, Ryan - male) (high quality)?" && {
-    echo "Downloading LJSpeech voice (female, high quality)..."
-    wget -q --show-progress -O en_US-ljspeech-high.onnx \
-        "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/ljspeech/high/en_US-ljspeech-high.onnx"
-    wget -q --show-progress -O en_US-ljspeech-high.onnx.json \
-        "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/ljspeech/high/en_US-ljspeech-high.onnx.json"
+gum confirm --default=true "Install Piper TTS voices (Cori - female British, Ryan - male American) (high quality)?" && {
+    echo "Downloading Cori voice (female, British, high quality)..."
+    wget -q --show-progress -O en_GB-cori-high.onnx \
+        "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_GB/cori/high/en_GB-cori-high.onnx"
+    wget -q --show-progress -O en_GB-cori-high.onnx.json \
+        "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_GB/cori/high/en_GB-cori-high.onnx.json"
 
-    echo "Downloading Ryan voice (male, high quality)..."
+    echo "Downloading Ryan voice (male, American, high quality)..."
     wget -q --show-progress -O en_US-ryan-high.onnx \
         "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/ryan/high/en_US-ryan-high.onnx"
     wget -q --show-progress -O en_US-ryan-high.onnx.json \
