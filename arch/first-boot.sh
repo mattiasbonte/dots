@@ -112,7 +112,7 @@ paci --asdeps \
     lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader sdl2-compat lib32-sdl2-compat
 
 # Packs
-paci steam lutris teamspeak3 discord
+paci steam lutris teamspeak3 discord obsidian
 pari protonplus
 
 # DICTATION
