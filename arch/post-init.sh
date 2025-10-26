@@ -41,6 +41,14 @@ z ~/.local/share/chezmoi
 z ~/DEV/PROFESSION/WINTRO/wintro-mono/app
 
 # --
+# Default Applications
+# --
+# Set Zed as default editor for markdown and text files
+xdg-mime default dev.zed.Zed.desktop text/markdown
+xdg-mime default dev.zed.Zed.desktop text/x-markdown
+xdg-mime default dev.zed.Zed.desktop text/plain
+
+# --
 # Sytemd
 # --
 loginctl enable-linger $USER
