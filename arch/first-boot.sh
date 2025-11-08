@@ -51,7 +51,7 @@ git config --global user.email "info@mattiasbonte.dev"
 git config --global user.name "Mattias B."
 
 # DEV
-pari pnpm-bin pyenv luarocks postgresql-libs
+pari pnpm-bin pyenv luarocks postgresql-libs opencode-bin claude-code
 command -v nvm >/dev/null 2>&1 || curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash # NVM
 
 # EDIT
