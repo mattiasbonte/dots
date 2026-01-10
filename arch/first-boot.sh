@@ -13,7 +13,7 @@ cari() { [ -z "$1" ] && return 0 || command -v cargo >/dev/null 2>&1 && cargo in
 
 # BASE
 paci base-devel git rust go
-paci jq xsel xclip btop wget atool aria2 cmake keychain xdotool bat tree age mpv gum glow bitwarden bitwarden-cli xprintidle dex alsa-utils
+paci jq xsel xclip bottom wget atool aria2 cmake keychain xdotool bat tree age mpv gum glow bitwarden bitwarden-cli xprintidle dex alsa-utils
 
 # CONFIG
 git -C "$HOME/DOTS" pull
@@ -41,7 +41,7 @@ if ! command -v paru &>/dev/null; then
 fi
 
 # FM
-paci yazi ffmpeg 7zip jq poppler fd ripgrep fzf zoxide imagemagick trash-cli mpv
+paci yazi ffmpeg 7zip jq poppler fd ripgrep fzf zoxide imagemagick trash-cli mpv rsync
 
 pari resvg
 
