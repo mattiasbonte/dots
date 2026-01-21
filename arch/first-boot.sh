@@ -84,6 +84,7 @@ pari lain-git
 # LAPTOP
 paci xorg-xinput # touchpad
 paci blueman # bluetooth
+paci brightnessctl # screen brightness
 pari unified-remote-server # remote control
 
 
