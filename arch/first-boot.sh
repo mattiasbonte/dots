@@ -13,7 +13,7 @@ cari() { [ -z "$1" ] && return 0 || command -v cargo >/dev/null 2>&1 && cargo in
 
 # BASE
 paci base-devel git rust go
-paci jq xsel xclip bottom wget atool aria2 cmake keychain xdotool bat tree age mpv gum glow bitwarden bitwarden-cli xprintidle dex alsa-utils
+paci jq xsel xclip bottom wget atool aria2 cmake keychain xdotool bat tree age mpv gum glow dialog bitwarden bitwarden-cli xprintidle dex alsa-utils
 
 # CONFIG
 git -C "$HOME/DOTS" pull
@@ -21,7 +21,7 @@ find "$HOME/DOTS/arch/config" -mindepth 1 -maxdepth 1 -type d -exec cp -r {} "$H
 git -C "$HOME/DOTS" remote set-url origin "git@github.com:mattiasbonte/dots.git"
 
 # ZSH
-paci zsh zsh-completions starship alacritty tmux
+paci zsh zsh-completions starship alacritty kitty tmux
 sudo chsh -s $(which zsh) $USER
 
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
@@ -41,17 +41,17 @@ if ! command -v paru &>/dev/null; then
 fi
 
 # FM
-paci yazi ffmpeg 7zip jq poppler fd ripgrep fzf zoxide imagemagick trash-cli mpv rsync
+paci yazi ffmpeg 7zip jq poppler fd ripgrep fzf zoxide imagemagick trash-cli mpv rsync imv satty
 
 pari resvg
 
 # GIT
-paci git lazygit github-cli git-delta difftastic
+paci git git-crypt lazygit github-cli git-delta difftastic
 git config --global user.email "info@mattiasbonte.dev"
 git config --global user.name "Mattias B."
 
 # DEV
-pari pnpm-bin pyenv luarocks postgresql-libs opencode-bin claude-code
+pari pnpm-bin pyenv luarocks postgresql-libs opencode-bin claude-code sqlit
 command -v nvm >/dev/null 2>&1 || curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash # NVM
 
 # EDIT
