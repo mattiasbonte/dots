@@ -20,7 +20,10 @@
           {
             "btrfs": [],
             "dev_path": null,
-            "flags": ["boot", "esp"],
+            "flags": [
+              "boot",
+              "esp"
+            ],
             "fs_type": "fat32",
             "mount_options": [],
             "mountpoint": "/boot",
@@ -77,7 +80,9 @@
     ]
   },
   "hostname": "wise-desktop",
-  "kernels": ["linux-zen"],
+  "kernels": [
+    "linux-zen"
+  ],
   "locale_config": {
     "kb_layout": "us",
     "sys_enc": "UTF-8",
@@ -111,12 +116,21 @@
         "Awesome": {},
         "KDE Plasma": {}
       },
-      "details": ["Awesome", "KDE Plasma"],
+      "details": [
+        "Awesome",
+        "KDE Plasma"
+      ],
       "main": "Desktop"
     }
   },
   "services": [],
   "swap": true,
   "timezone": "Europe/Brussels",
-  "version": null
+  "version": null,
+  "disk_encryption": {
+    "encryption_type": "luks",
+    "partitions": [
+      "9b65b917-7560-42af-9a89-cc03716be7cb"
+    ]
+  }
 }
