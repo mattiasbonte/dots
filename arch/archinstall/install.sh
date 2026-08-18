@@ -103,9 +103,20 @@ printf '[zram0]\nzram-size = ram / 2\n' > /etc/systemd/zram-generator.conf
 git clone https://github.com/mattiasbonte/dots.git /home/wise/DOTS
 chown -R wise:wise /home/wise/DOTS
 
-printf '[Unit]\nDescription=wise first-boot provisioning\nWants=network-online.target\nAfter=network-online.target\nConditionPathExists=!/var/lib/wise-firstboot.done\n[Service]\nType=oneshot\nTimeoutStartSec=0\nExecStart=/usr/bin/runuser -u wise -- env NONINTERACTIVE=1 HOME=/home/wise bash /home/wise/DOTS/arch/first-boot.sh\nExecStartPost=/usr/bin/touch /var/lib/wise-firstboot.done\nStandardOutput=append:/var/log/wise-firstboot.log\nStandardError=append:/var/log/wise-firstboot.log\n[Install]\nWantedBy=multi-user.target\n' > /etc/systemd/system/wise-firstboot.service
+# First-login provisioning: any interactive shell (KDE terminal, awesome,
+# raw TTY) offers to run first-boot until it completes cleanly. Visible,
+# real tty — failures happen in front of you, not in a log.
+cat > /etc/profile.d/wise-firstboot.sh <<'HOOK'
+if [ -t 0 ] && [ "\$(id -un)" = "wise" ] && [ ! -f "\$HOME/.wise-firstboot.done" ]; then
+    echo "── first-boot provisioning has not completed on this machine ──"
+    printf "run it now? [Y/n] "; read -r _a
+    case "\$_a" in n|N) echo "later then — this prompt returns every login until done";;
+    *) bash "\$HOME/DOTS/arch/first-boot.sh" && touch "\$HOME/.wise-firstboot.done";;
+    esac
+fi
+HOOK
 
-systemctl enable NetworkManager sddm systemd-timesyncd wise-firstboot.service
+systemctl enable NetworkManager sddm systemd-timesyncd
 CHROOT
 
 printf '%s:%s\n' wise "$PW" | arch-chroot /mnt chpasswd
