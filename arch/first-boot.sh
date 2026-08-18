@@ -17,6 +17,21 @@ FAILED=()
 paci() { [ -z "$1" ] && return 0; sudo pacman -S --needed --noconfirm "$@" || FAILED+=("pacman: $*"); }
 pari() { [ -z "$1" ] && return 0; command -v paru >/dev/null 2>&1 && { paru -S --needed --noconfirm "$@" || FAILED+=("paru: $*"); } || FAILED+=("paru missing: $*"); }
 
+# AUR helper — bootstrapped FIRST (everything pari depends on it), fully
+# unattended (--noconfirm), loud on failure.
+if ! command -v paru >/dev/null 2>&1; then
+    paci base-devel git
+    PARU_TMP=$(mktemp -d)
+    if git clone https://aur.archlinux.org/paru.git "$PARU_TMP/paru" \
+        && ( cd "$PARU_TMP/paru" && makepkg -si --noconfirm ) \
+        && command -v paru >/dev/null 2>&1; then
+        echo "✔ paru bootstrapped"
+    else
+        FAILED+=("paru bootstrap — ALL AUR installs below will fail")
+    fi
+    rm -rf "$PARU_TMP"
+fi
+
 # HW detection (drives laptop/Tuxedo sections below)
 IS_LAPTOP=false; ls /sys/class/power_supply/BAT* >/dev/null 2>&1 && IS_LAPTOP=true
 IS_TUXEDO=false; grep -qi tuxedo /sys/class/dmi/id/sys_vendor 2>/dev/null && IS_TUXEDO=true
@@ -39,15 +54,6 @@ if [ ! -d "$HOME/.oh-my-zsh" ]; then
     cp -r "$HOME/DOTS/arch/config/zshrc" "$HOME/.zshrc"
 else
     echo "Oh My Zsh already installed, skipping installation"
-fi
-
-# AUR
-if ! command -v paru &>/dev/null; then
-    git clone https://aur.archlinux.org/paru.git
-    cd paru
-    makepkg -si
-    cd ..
-    rm -rf paru
 fi
 
 # FM
@@ -208,10 +214,16 @@ if $IS_TUXEDO; then
 fi
 
 
-# SUMMARY
+# SUMMARY — always the last thing printed; failures also land as a file
+# in $HOME so a login can't miss them, and a nonzero exit makes the
+# wise-firstboot service show FAILED and retry on next boot.
 if [ ${#FAILED[@]} -gt 0 ]; then
-    echo; echo "⚠ ${#FAILED[@]} install step(s) failed:"; printf ' - %s\n' "${FAILED[@]}"
+    { echo "first-boot: ${#FAILED[@]} step(s) failed ($(date -Is)):"; printf ' - %s\n' "${FAILED[@]}"
+      echo "re-run: bash ~/DOTS/arch/first-boot.sh (idempotent — only redoes what failed)"
+    } | tee "$HOME/FIRSTBOOT-FAILURES.txt"
+    exit 1
 else
+    rm -f "$HOME/FIRSTBOOT-FAILURES.txt"
     echo "✅ all install steps succeeded"
 fi
 
