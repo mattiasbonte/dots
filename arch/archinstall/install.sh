@@ -23,15 +23,21 @@ TZ=Europe/Brussels
 KEYMAP=us
 LOCALE=en_US.UTF-8
 
-# GPU: Turing+ → open modules; none → skip (first-boot handles extras)
-GPU_PKGS=""
-if lspci | grep -qi nvidia; then GPU_PKGS="nvidia-open-dkms nvidia-utils"; fi
+# GPU: nvidia present → open modules (Turing+); otherwise intel/amd mesa
+if lspci | grep -qi nvidia; then GPU_PKGS="nvidia-open-dkms nvidia-utils"
+else GPU_PKGS="mesa vulkan-intel"; fi
+
+# Per-host: desktop gets KDE next to awesome; laptop is awesome-only
+case "$HOST" in
+    wise-desktop) HOST_PKGS="plasma-meta konsole" ;;
+    wise-laptop)  HOST_PKGS="brightnessctl" ;;
+esac
 
 PKGS="base linux-zen linux-zen-headers linux-firmware e2fsprogs cryptsetup
 networkmanager sudo zsh git openssh zram-generator
-plasma-meta sddm awesome xorg-server xorg-xinit konsole
+sddm awesome xorg-server xorg-xinit alacritty
 pipewire pipewire-alsa pipewire-pulse pipewire-jack wireplumber
-$GPU_PKGS"
+$GPU_PKGS $HOST_PKGS"
 grep -q GenuineIntel /proc/cpuinfo && PKGS="$PKGS intel-ucode" || PKGS="$PKGS amd-ucode"
 
 # ── preflight ───────────────────────────────────────────────────────
