@@ -224,14 +224,34 @@ fi
 # SUMMARY — always the last thing printed; failures also land as a file
 # in $HOME so a login can't miss them, and a nonzero exit makes the
 # wise-firstboot service show FAILED and retry on next boot.
+echo; echo
 if [ ${#FAILED[@]} -gt 0 ]; then
-    { echo "first-boot: ${#FAILED[@]} step(s) failed ($(date -Is)):"; printf ' - %s\n' "${FAILED[@]}"
-      echo "re-run: bash ~/DOTS/arch/first-boot.sh (idempotent — only redoes what failed)"
-    } | tee "$HOME/FIRSTBOOT-FAILURES.txt"
+    { echo "first-boot: ${#FAILED[@]} step(s) failed ($(date -Is))"
+      printf '  • %s\n' "${FAILED[@]}"
+    } > "$HOME/FIRSTBOOT-FAILURES.txt"
+    if command -v gum >/dev/null 2>&1; then
+        gum style --border rounded --border-foreground 1 --padding "1 3" --margin "1 2" \
+            "⚠  FIRST-BOOT — ${#FAILED[@]} step(s) failed" "" \
+            "$(printf '• %s\n' "${FAILED[@]}")" "" \
+            "Details: ~/FIRSTBOOT-FAILURES.txt" \
+            "Re-run:  bash ~/DOTS/arch/first-boot.sh" \
+            "(idempotent — only redoes what failed)"
+    else
+        cat "$HOME/FIRSTBOOT-FAILURES.txt"
+    fi
     exit 1
 else
     rm -f "$HOME/FIRSTBOOT-FAILURES.txt"
-    echo "✅ all install steps succeeded"
+    if command -v gum >/dev/null 2>&1; then
+        gum style --border rounded --border-foreground 2 --padding "1 3" --margin "1 2" \
+            "✅  FIRST-BOOT COMPLETE — all steps succeeded" "" \
+            "Next:" \
+            "  1. bash ~/DOTS/arch/post-init.sh          chezmoi + gh/bw auth" \
+            "  2. log out → pick session at the greeter" \
+            "  3. ~/DOTS/arch/bin/device-evidence.sh     Vanta evidence"
+    else
+        echo "✅ first-boot complete — next: bash ~/DOTS/arch/post-init.sh"
+    fi
 fi
 
 # REBOOT AT THE END
