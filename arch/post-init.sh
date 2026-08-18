@@ -63,7 +63,7 @@ case "$(cat /etc/hostname)" in wise-laptop*)
         [ -f "$HOME/.config/systemd/user/$u" ] && systemctl --user enable "$u"
     done ;;
 esac
-if case "$(cat /etc/hostname)" in wise-laptop*) true;; *) false;; esac && command -v tailscale >/dev/null && ! tailscale status >/dev/null 2>&1; then
+if command -v tailscale >/dev/null && ! tailscale status >/dev/null 2>&1; then # installed = chosen in first-boot
     gum confirm "Connect Tailscale now? (prints an auth URL to open in a browser)" && sudo tailscale up || echo "later: sudo tailscale up"
 fi
 sudo systemctl enable --now bluetooth.service # system service, not user

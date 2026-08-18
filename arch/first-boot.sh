@@ -97,8 +97,9 @@ paci htop btop vim nano xdg-utils xorg-xrandr xorg-xev xterm \
     feh nsxiv zathura zathura-pdf-mupdf clamav
 pari whosthere-bin yaak-bin gnu-netcat
 
-# Tailscale (laptop-only: remote access for the roaming machine)
-if $IS_LAPTOP; then
+# Tailscale (mesh vpn) — your choice per machine; default yes on laptops
+TS_DEFAULT="--default=false"; $IS_LAPTOP && TS_DEFAULT="--default=true"
+if confirm "$TS_DEFAULT" "Install Tailscale? (mesh VPN / remote access)"; then
     paci tailscale
     sudo systemctl enable --now tailscaled
 fi
