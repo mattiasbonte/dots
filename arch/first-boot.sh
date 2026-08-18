@@ -3,6 +3,8 @@
 # @note installs all required packages to be able to quickly get the system up and running
 # --
 
+cd "$HOME" # unattended service starts in / — clones/builds need a writable CWD
+
 # UPDATE DBS
 sudo pacman -Syu && paru -Syu
 
