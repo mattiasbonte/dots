@@ -51,21 +51,19 @@ sudo eject /dev/sdc
 > `sudo cryptsetup luksChangeKey /dev/nvme0n1p2`, then wipe creds.json.
 
 ```bash
-# Mount the installation USB
-mkdir /mnt/usb
-mount /dev/sda1 /mnt/usb
+# Single-touch: mount the USB and run its installer — it detects the
+# machine (TUXEDO → wise-laptop, else wise-desktop) and uses the local
+# config + creds. Keep the stick fresh with:
+#   ~/DOTS/arch/bin/update-install-usb.sh <usb-mountpoint>
+mkdir -p /mnt/usb && mount /dev/sda1 /mnt/usb
+bash /mnt/usb/install.sh
 
-# Update installer
-pacman -Sy && pacman -S --noconfirm archinstall
-
-# Install config
-archinstall \
---creds /mnt/usb/configs/wise-desktop/creds.json \
---config-url https://raw.githubusercontent.com/mattiasbonte/dots/main/arch/archinstall/conf_desktop.json
-# --config https://tinyurl.com/12345678 \ # Use [tinyurl](https://tinyurl.com) to shorten config url if preferred
-
-select reboot
+# then: select reboot
 ```
+
+> After first boot: `passwd` (temp password!) and rotate the LUKS
+> passphrase: `sudo cryptsetup luksChangeKey <root-partition>` — then
+> delete creds.json from the stick or rerun update-install-usb.sh.
 
 # Post-install
 
