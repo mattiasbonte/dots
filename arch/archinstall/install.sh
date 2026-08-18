@@ -91,3 +91,4 @@ fi
 
 }
 main "$@"
+exit $?
