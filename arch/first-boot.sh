@@ -6,10 +6,14 @@
 # UPDATE DBS
 sudo pacman -Syu && paru -Syu
 
-# FN
-paci() { [ -z "$1" ] && return 0 || command -v pacman >/dev/null 2>&1 && sudo pacman -S --needed --noconfirm "$@" || echo "pacman not found, skipping: $@"; }
-pari() { [ -z "$1" ] && return 0 || command -v paru >/dev/null 2>&1 && paru -S --needed --noconfirm "$@" || echo "paru not found, skipping: $@"; }
-cari() { [ -z "$1" ] && return 0 || command -v cargo >/dev/null 2>&1 && cargo install --if-not-installed "$@" || echo "cargo not found, skipping: $@"; }
+# FN — failures are collected, not fatal; summary prints at the end
+FAILED=()
+paci() { [ -z "$1" ] && return 0; sudo pacman -S --needed --noconfirm "$@" || FAILED+=("pacman: $*"); }
+pari() { [ -z "$1" ] && return 0; command -v paru >/dev/null 2>&1 && { paru -S --needed --noconfirm "$@" || FAILED+=("paru: $*"); } || FAILED+=("paru missing: $*"); }
+
+# HW detection (drives laptop/Tuxedo sections below)
+IS_LAPTOP=false; ls /sys/class/power_supply/BAT* >/dev/null 2>&1 && IS_LAPTOP=true
+IS_TUXEDO=false; grep -qi tuxedo /sys/class/dmi/id/sys_vendor 2>/dev/null && IS_TUXEDO=true
 
 # BASE
 paci base-devel git rust go
@@ -17,7 +21,7 @@ paci jq xsel xclip bottom wget atool aria2 cmake keychain xdotool bat tree age m
 
 # CONFIG
 git -C "$HOME/DOTS" pull
-find "$HOME/DOTS/arch/config" -mindepth 1 -maxdepth 1 -type d -exec cp -r {} "$HOME/.config" \;
+find "$HOME/DOTS/arch/config" -mindepth 1 -maxdepth 1 -exec cp -r {} "$HOME/.config/" \; # files AND dirs
 git -C "$HOME/DOTS" remote set-url origin "git@github.com:mattiasbonte/dots.git"
 
 # ZSH
@@ -106,11 +110,13 @@ paci arandr autorandr pavucontrol redshift
 pari lain-git
     # lain-git: Awesome WM complements - provides additional layouts, widgets, and utilities for Awesome window manager
 
-# LAPTOP
-paci xorg-xinput # touchpad
-paci blueman # bluetooth
-paci brightnessctl # screen brightness
-pari unified-remote-server # remote control
+# LAPTOP (auto-detected)
+if $IS_LAPTOP; then
+    paci xorg-xinput # touchpad
+    paci blueman # bluetooth
+    paci brightnessctl # screen brightness
+    pari unified-remote-server # remote control
+fi
 
 
 # --
@@ -126,7 +132,7 @@ sudo pacman -Sy
 paci lib32-mesa vulkan-intel lib32-vulkan-intel vulkan-icd-loader lib32-vulkan-icd-loader
 
 # Nvidia - https://github.com/lutris/docs/blob/master/InstallingDrivers.md#nvidia-1
-paci nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings vulkan-icd-loader lib32-vulkan-icd-loader
+paci linux-zen-headers nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings vulkan-icd-loader lib32-vulkan-icd-loader
 
 
 # Wine - https://github.com/lutris/docs/blob/master/WineDependencies.md
@@ -146,7 +152,7 @@ if [ ! -d "$HOME/whisper.cpp" ]; then
     cd ~
     git clone https://github.com/ggerganov/whisper.cpp
     cd whisper.cpp
-    make  # Simple make, no cmake needed
+    cmake -B build && cmake --build build -j --config Release # binary: build/bin/whisper-cli
     bash models/download-ggml-model.sh small
 else
     echo "Whisper.cpp already installed, skipping installation"
@@ -175,10 +181,17 @@ gum confirm --default=true "Install Piper TTS voices (Cori - female British, Rya
     echo "✅ Piper high-quality voices installed"
 } || echo "Skipping Piper voice installation"
 
-gum confirm --default=false "Are you on a Tuxedo laptop?" && {
-    pari tuxedo-control-center-bin tuxedo-drivers-dkms 
-} || echo "Skipping Tuxedo-specific packages"
+if $IS_TUXEDO; then
+    pari tuxedo-control-center-bin tuxedo-drivers-dkms
+fi
 
+
+# SUMMARY
+if [ ${#FAILED[@]} -gt 0 ]; then
+    echo; echo "⚠ ${#FAILED[@]} install step(s) failed:"; printf ' - %s\n' "${FAILED[@]}"
+else
+    echo "✅ all install steps succeeded"
+fi
 
 # REBOOT AT THE END
 gum confirm --default=false "Reboot now?" && reboot || echo "Skipping reboot"

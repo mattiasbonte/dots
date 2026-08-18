@@ -22,7 +22,7 @@ sudo cp ~/Downloads/ipxe-arch.efi /mnt/EFI/BOOT/BOOTX64.EFI
 
 # Eject
 sudo umount /mnt
-sudo Reject /dev/sdc
+sudo eject /dev/sdc
 ```
 
 # Boot
@@ -44,6 +44,11 @@ sudo Reject /dev/sdc
 - Select `Boot Arch Linux`
 
 # Archinstall
+
+> creds.json must include `"encryption_password": "<temp-passphrase>"` — the
+> desktop config installs with LUKS full-disk encryption. Use a throwaway
+> passphrase and rotate after first boot:
+> `sudo cryptsetup luksChangeKey /dev/nvme0n1p2`, then wipe creds.json.
 
 ```bash
 # Mount the installation USB
@@ -67,6 +72,9 @@ select reboot
 ```bash
 ~/DOTS/arch/first-boot.sh
 ~/DOTS/arch/post-init.sh
+
+# Device compliance evidence (upload to Vanta > Computers > this device)
+~/DOTS/arch/bin/device-evidence.sh
 ```
 
 # Gaming

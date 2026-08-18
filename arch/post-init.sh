@@ -56,7 +56,7 @@ loginctl enable-linger $USER
 # Personal Config
 systemctl --user enable wise-config.service
 systemctl --user start wise-config.service
-systemctl --user enable bluetooth.service
+sudo systemctl enable --now bluetooth.service # system service, not user
 systemctl --user enable autorandr.service
 
 
@@ -67,8 +67,6 @@ sudo systemctl enable valkey.service
 # Spotify
 go install github.com/envoy49/go-spotify-cli@latest
 
-# Claude
-npm install -g @anthropic-ai/claude-code
 
 # Reboot
 gum confirm --default=false "Reboot now?" && { echo "Rebooting system..."; reboot; } || echo "Reboot skipped. You can reboot manually later."
