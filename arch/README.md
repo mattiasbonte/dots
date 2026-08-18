@@ -65,6 +65,15 @@ bash /mnt/usb/install.sh
 > passphrase: `sudo cryptsetup luksChangeKey <root-partition>` — then
 > delete creds.json from the stick or rerun update-install-usb.sh.
 
+# ⚠ Pre-rebuild checklist (things NO script restores)
+
+- **`~/.ssh/` keys** — github, wintro (vault/AGE!), hive, aether, belt. Copy to
+  an encrypted USB or Bitwarden BEFORE wiping. Losing the wintro key means
+  re-enrollment via another admin machine (aether/desktop hold admin keys).
+- WiFi profiles (`/etc/NetworkManager/system-connections/`) — or just re-join.
+- Anything experimental installed by hand (qemu/incus/podman/cuda/gamescope
+  etc. are deliberately NOT in first-boot — reinstall on demand).
+
 # Fully automated flow (summary)
 
 1. Boot any Arch medium (netboot stick or plain ISO).

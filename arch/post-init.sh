@@ -56,6 +56,15 @@ loginctl enable-linger $USER
 # Personal Config
 systemctl --user enable wise-config.service
 systemctl --user start wise-config.service
+# laptop-specific user units (files come from chezmoi)
+if [ "$(cat /etc/hostname)" = "wise-laptop" ]; then
+    for u in aether-break.service aether-secrets-unlock.service aether-tunnel.service \
+             wintro-notes-sync.service aether-backup-daily.timer aether-laptop-sync.timer \
+             chezmoi-re-add.timer laptop-heartbeat.timer; do
+        [ -f "$HOME/.config/systemd/user/$u" ] && systemctl --user enable "$u"
+    done
+fi
+command -v tailscale >/dev/null && { tailscale status >/dev/null 2>&1 || sudo tailscale up; }
 sudo systemctl enable --now bluetooth.service # system service, not user
 systemctl --user enable autorandr.service
 

@@ -61,7 +61,7 @@ git config --global user.email "info@mattiasbonte.dev"
 git config --global user.name "Mattias B."
 
 # DEV
-pari pnpm-bin pyenv luarocks postgresql-libs opencode-bin claude-code sqlite
+pari pnpm-bin pyenv luarocks postgresql-libs opencode-bin claude-code sqlit
 command -v nvm >/dev/null 2>&1 || curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash # NVM
 
 # EDIT
@@ -82,6 +82,18 @@ paci aichat
 # MISC
 paci valkey thunderbird flameshot copyq easyeffects xournalpp yt-dlp
 pari slack-desktop
+
+# ESSENTIALS (from installed-state audit — daily-driver basics)
+paci htop btop vim nano xdg-utils xorg-xrandr xorg-xev xterm \
+    network-manager-applet terminus-font ttf-liberation gnu-free-fonts \
+    sof-firmware smartmontools efibootmgr net-tools inotify-tools time \
+    git-filter-repo sox darkman python-pipx tree-sitter-cli \
+    feh nsxiv zathura zathura-pdf-mupdf clamav
+pari whosthere-bin yaak-bin gnu-netcat
+
+# Tailscale (mesh vpn — login happens in post-init: `sudo tailscale up`)
+paci tailscale
+sudo systemctl enable --now tailscaled
 
 # --
 # DEVICE COMPLIANCE (Vanta device trust: encryption is handled at
@@ -165,7 +177,7 @@ else
 fi
 
 # TTS (Piper)
-pari piper-tts
+pari piper-tts-bin
 
 # Install Piper voices
 mkdir -p "$HOME/.local/share/piper/voices"
@@ -186,6 +198,10 @@ cd "$HOME/.local/share/piper/voices"
 
     echo "✅ Piper high-quality voices installed"
 } || echo "Skipping Piper voice installation"
+
+if $IS_LAPTOP; then
+    printf 'ListenAddress 127.0.0.1\n' | sudo tee /etc/ssh/sshd_config.d/10-localhost-only.conf >/dev/null
+fi
 
 if $IS_TUXEDO; then
     pari tuxedo-control-center-bin tuxedo-drivers-dkms
