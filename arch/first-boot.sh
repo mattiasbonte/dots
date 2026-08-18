@@ -72,7 +72,7 @@ command -v nvm >/dev/null 2>&1 || curl -o- https://raw.githubusercontent.com/nvm
 
 # EDIT
 paci bob zed
-bob list 2>/dev/null | grep -q nightly || bob use nightly
+bob list 2>/dev/null | grep -q nightly || yes | bob use nightly
 paci ttf-jetbrains-mono-nerd
 
 # DOTS
