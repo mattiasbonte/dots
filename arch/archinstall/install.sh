@@ -74,6 +74,8 @@ mount "$ESP" /mnt/boot
 # shellcheck disable=SC2086
 pacstrap -K /mnt $PKGS
 genfstab -U /mnt >> /mnt/etc/fstab
+# ESP must not be world-readable (bootctl stores the boot random seed there)
+sed -i '/[[:space:]]\/boot[[:space:]]/ { s/fmask=[0-9]*/fmask=0077/; s/dmask=[0-9]*/dmask=0077/ }' /mnt/etc/fstab
 LUKS_UUID=$(blkid -s UUID -o value "$ROOT")
 
 # ── configure (chroot) ──────────────────────────────────────────────
