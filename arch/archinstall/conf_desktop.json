@@ -9,7 +9,9 @@
     "chmod 440 /etc/sudoers.d/wheel",
     "usermod -aG wheel wise",
     "git clone https://github.com/mattiasbonte/dots.git /home/wise/DOTS",
-    "chown -R wise:wise /home/wise/DOTS"
+    "chown -R wise:wise /home/wise/DOTS",
+    "printf '[Unit]\\nDescription=wise first-boot provisioning\\nWants=network-online.target\\nAfter=network-online.target\\nConditionPathExists=!/var/lib/wise-firstboot.done\\n[Service]\\nType=oneshot\\nTimeoutStartSec=0\\nExecStart=/usr/bin/runuser -u wise -- env NONINTERACTIVE=1 HOME=/home/wise bash /home/wise/DOTS/arch/first-boot.sh\\nExecStartPost=/usr/bin/touch /var/lib/wise-firstboot.done\\nStandardOutput=append:/var/log/wise-firstboot.log\\nStandardError=append:/var/log/wise-firstboot.log\\n[Install]\\nWantedBy=multi-user.target\\n' > /etc/systemd/system/wise-firstboot.service",
+    "systemctl enable wise-firstboot.service"
   ],
   "disk_config": {
     "config_type": "default_layout",

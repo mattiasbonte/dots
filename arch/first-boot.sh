@@ -6,6 +6,10 @@
 # UPDATE DBS
 sudo pacman -Syu && paru -Syu
 
+# NONINTERACTIVE=1 → every gum prompt takes its default (used by the
+# wise-firstboot service that runs this unattended after install)
+confirm() { if [ "${NONINTERACTIVE:-0}" = 1 ]; then [ "$1" = "--default=true" ]; else gum confirm "$@"; fi; }
+
 # FN — failures are collected, not fatal; summary prints at the end
 FAILED=()
 paci() { [ -z "$1" ] && return 0; sudo pacman -S --needed --noconfirm "$@" || FAILED+=("pacman: $*"); }
@@ -165,7 +169,7 @@ pari piper-tts
 mkdir -p "$HOME/.local/share/piper/voices"
 cd "$HOME/.local/share/piper/voices"
 
-[ -f en_GB-cori-high.onnx ] && echo "Piper voices already installed" || gum confirm --default=true "Install Piper TTS voices (Cori - female British, Ryan - male American) (high quality)?" && {
+[ -f en_GB-cori-high.onnx ] && echo "Piper voices already installed" || confirm --default=true "Install Piper TTS voices (Cori - female British, Ryan - male American) (high quality)?" && {
     echo "Downloading Cori voice (female, British, high quality)..."
     wget -q --show-progress -O en_GB-cori-high.onnx \
         "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_GB/cori/high/en_GB-cori-high.onnx"
@@ -194,4 +198,4 @@ else
 fi
 
 # REBOOT AT THE END
-gum confirm --default=false "Reboot now?" && reboot || echo "Skipping reboot"
+confirm --default=false "Reboot now?" && reboot || echo "Skipping reboot"

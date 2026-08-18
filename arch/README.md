@@ -65,6 +65,18 @@ bash /mnt/usb/install.sh
 > passphrase: `sudo cryptsetup luksChangeKey <root-partition>` — then
 > delete creds.json from the stick or rerun update-install-usb.sh.
 
+# Fully automated flow (summary)
+
+1. Boot any Arch medium (netboot stick or plain ISO).
+2. `curl -sLO https://raw.githubusercontent.com/mattiasbonte/dots/main/arch/archinstall/install.sh && bash install.sh`
+   — detects the machine, fetches config, asks disk confirm + one password.
+3. Reboot → LUKS passphrase → login. The `wise-firstboot` service now
+   provisions everything unattended (log: `/var/log/wise-firstboot.log`,
+   marker: `/var/lib/wise-firstboot.done` — delete it to re-run).
+4. Once, manually: `~/DOTS/arch/post-init.sh` (gh + bitwarden OAuth can't
+   be automated) and `passwd` + LUKS passphrase rotation.
+5. Evidence: `~/DOTS/arch/bin/device-evidence.sh` → upload to Vanta.
+
 # Post-install
 
 ```bash
