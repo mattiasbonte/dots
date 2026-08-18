@@ -3,8 +3,25 @@
 #   - latest iPXE loader (stale loaders fail Arch's image signature check)
 #   - install.sh + per-host archinstall configs synced from DOTS
 #   - creds.json validated (must be JSON with encryption_password)
-# Usage: update-install-usb.sh /path/to/mounted/usb
+# Usage:
+#   update-install-usb.sh <usb-mountpoint>       # netboot mode: refresh loader+configs
+#   update-install-usb.sh --iso /dev/sdX         # ISO mode: flash latest official ISO (WIPES stick)
 set -euo pipefail
+
+if [ "${1:-}" = "--iso" ]; then
+    DEV="${2:?usage: update-install-usb.sh --iso /dev/sdX}"
+    MIRROR="https://geo.mirror.pkgbuild.com/iso/latest"
+    echo "→ downloading latest ISO + checksum"
+    curl -fSL -o /tmp/arch.iso "$MIRROR/archlinux-x86_64.iso"
+    curl -fsSL "$MIRROR/sha256sums.txt" | grep 'archlinux-x86_64.iso$' | sed 's|archlinux-x86_64.iso|/tmp/arch.iso|' | sha256sum -c -
+    echo "⚠ flashing WIPES $DEV completely."
+    read -rp "type the device path to confirm: " C; [ "$C" = "$DEV" ] || { echo mismatch; exit 1; }
+    sudo dd if=/tmp/arch.iso of="$DEV" bs=4M status=progress oflag=sync
+    sync; echo "✔ ISO flashed — in the live env run:"
+    echo "  curl -sLO https://raw.githubusercontent.com/mattiasbonte/dots/main/arch/archinstall/install.sh && bash install.sh"
+    exit 0
+fi
+
 USB="${1:?usage: update-install-usb.sh <usb-mountpoint>}"
 DOTS="$(cd "$(dirname "$0")/../.." && pwd)"
 [ -d "$USB/EFI/BOOT" ] || { echo "$USB doesn't look like the install USB (no EFI/BOOT)"; exit 1; }
