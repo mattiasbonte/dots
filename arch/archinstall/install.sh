@@ -5,6 +5,10 @@
 # uses the config + creds stored next to this script. Network only needed
 # for packages, not for config.
 set -euo pipefail
+
+# Everything lives in main() so `curl | bash` parses the full script
+# before execution — the /dev/tty stdin switch inside is then safe.
+main() {
 HERE="$(cd "$(dirname "$0")" && pwd)"
 
 # Piped in via `curl | bash`? Reattach prompts to the terminal.
@@ -84,3 +88,6 @@ else
     echo "✘ NO crypto_LUKS found — the install came out UNENCRYPTED. Do not use it; investigate."
     exit 1
 fi
+
+}
+main "$@"
