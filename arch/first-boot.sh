@@ -214,6 +214,13 @@ if $IS_TUXEDO; then
 fi
 
 
+# ── MACHINE QUIRKS (optional, see arch/machines/README.md) ──
+MACHINE_FILE="$HOME/DOTS/arch/machines/$(cat /etc/hostname).sh"
+if [ -f "$MACHINE_FILE" ]; then
+    echo "→ machine quirks: $MACHINE_FILE"
+    source "$MACHINE_FILE" || FAILED+=("machine quirks: $MACHINE_FILE")
+fi
+
 # SUMMARY — always the last thing printed; failures also land as a file
 # in $HOME so a login can't miss them, and a nonzero exit makes the
 # wise-firstboot service show FAILED and retry on next boot.
