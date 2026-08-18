@@ -63,7 +63,9 @@ case "$(cat /etc/hostname)" in wise-laptop*)
         [ -f "$HOME/.config/systemd/user/$u" ] && systemctl --user enable "$u"
     done ;;
 esac
-command -v tailscale >/dev/null && { tailscale status >/dev/null 2>&1 || sudo tailscale up; }
+if command -v tailscale >/dev/null && ! tailscale status >/dev/null 2>&1; then
+    gum confirm "Connect Tailscale now? (prints an auth URL to open in a browser)" && sudo tailscale up || echo "later: sudo tailscale up"
+fi
 sudo systemctl enable --now bluetooth.service # system service, not user
 case "$(cat /etc/hostname)" in wise-laptop*) systemctl --user enable autorandr.service ;; esac # multi-display is a laptop concern
 
