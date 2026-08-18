@@ -6,7 +6,7 @@
 cd "$HOME" # unattended service starts in / — clones/builds need a writable CWD
 
 # UPDATE DBS
-sudo pacman -Syu && paru -Syu
+sudo pacman -Syu --noconfirm && { command -v paru >/dev/null && paru -Syu --noconfirm || true; }
 
 # NONINTERACTIVE=1 → every gum prompt takes its default (used by the
 # wise-firstboot service that runs this unattended after install)
