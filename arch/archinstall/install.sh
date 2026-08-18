@@ -7,8 +7,18 @@
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 
+# Piped in via `curl | bash`? Reattach prompts to the terminal.
+[ -t 0 ] || exec </dev/tty
+
+trap 'echo "✘ install failed at line $LINENO — nothing after this line ran. Fix and re-run: safe to repeat."' ERR
+
 # Only ever run from the Arch live ISO — never on an installed system.
 [ -d /run/archiso ] || { echo "✘ not the Arch live environment — refusing to run an installer here"; exit 1; }
+
+# Early, clear preflight: network + clock (wrong clock breaks signatures).
+timedatectl set-ntp true 2>/dev/null || true
+curl -fsm 10 https://raw.githubusercontent.com >/dev/null 2>&1 || curl -fsm 10 https://archlinux.org >/dev/null 2>&1 \
+    || { echo "✘ no internet — plug ethernet (or iwctl for wifi) and re-run"; exit 1; }
 
 VENDOR=$(cat /sys/class/dmi/id/sys_vendor 2>/dev/null || echo unknown)
 case "$VENDOR" in
@@ -26,9 +36,12 @@ if [ ! -f "$CFG/conf.json" ]; then
     CFG=$(mktemp -d)
     SHORT=${HOST#wise-}   # desktop / laptop
     curl -fsSL -o "$CFG/conf.json"         "https://raw.githubusercontent.com/mattiasbonte/dots/main/arch/archinstall/conf_${SHORT}.json"         || { echo "✘ no conf_${SHORT}.json in dots repo"; exit 1; }
-    read -rsp "choose temp password (LUKS + user 'wise', rotate later): " PW; echo
-    read -rsp "repeat: " PW2; echo
-    [ "$PW" = "$PW2" ] || { echo "mismatch"; exit 1; }
+    while :; do
+        read -rsp "choose temp password (LUKS + user 'wise', rotate later, min 8 chars): " PW; echo
+        [ ${#PW} -ge 8 ] || { echo "too short, try again"; continue; }
+        read -rsp "repeat: " PW2; echo
+        [ "$PW" = "$PW2" ] && break || echo "mismatch, try again"
+    done
     HASH=$(openssl passwd -6 "$PW")
     python3 - "$CFG/creds.json" "$PW" "$HASH" <<'PY'
 import json,sys
@@ -46,6 +59,8 @@ echo "⚠ this WIPES $DISK completely."
 read -rp "type the disk path to confirm: " CONFIRM
 [ "$CONFIRM" = "$DISK" ] || { echo "mismatch — aborting"; exit 1; }
 
+# Old ISO? Refresh the keyring first or every package install fails on signatures.
+pacman -Sy --noconfirm archlinux-keyring >/dev/null 2>&1 || true
 pacman -Sy --noconfirm archinstall
 
 if ! archinstall --config "$CFG/conf.json" --creds "$CFG/creds.json"; then
@@ -58,4 +73,14 @@ if ! archinstall --config "$CFG/conf.json" --creds "$CFG/creds.json"; then
 MSG
     exit 1
 fi
-echo "✔ install done — reboot, then run ~/DOTS/arch/first-boot.sh"
+# Self-verify: the whole point is an encrypted install — prove it before
+# declaring success.
+echo; lsblk -o NAME,TYPE,FSTYPE,MOUNTPOINT "$DISK"
+if lsblk -no FSTYPE "$DISK" | grep -q crypto_LUKS; then
+    echo "✔ encryption verified (crypto_LUKS present)"
+    echo "✔ install done — reboot, enter your passphrase, log in."
+    echo "  The machine provisions itself: tail -f /var/log/wise-firstboot.log"
+else
+    echo "✘ NO crypto_LUKS found — the install came out UNENCRYPTED. Do not use it; investigate."
+    exit 1
+fi

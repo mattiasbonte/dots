@@ -12,7 +12,7 @@ if [ "${1:-}" = "--iso" ]; then
     DEV="${2:?usage: update-install-usb.sh --iso /dev/sdX}"
     MIRROR="https://geo.mirror.pkgbuild.com/iso/latest"
     echo "→ downloading latest ISO + checksum"
-    curl -fSL -o /tmp/arch.iso "$MIRROR/archlinux-x86_64.iso"
+    curl -fSL --retry 3 -C - -o /tmp/arch.iso "$MIRROR/archlinux-x86_64.iso"
     curl -fsSL "$MIRROR/sha256sums.txt" | grep 'archlinux-x86_64.iso$' | sed 's|archlinux-x86_64.iso|/tmp/arch.iso|' | sha256sum -c -
     echo "⚠ flashing WIPES $DEV completely."
     read -rp "type the device path to confirm: " C; [ "$C" = "$DEV" ] || { echo mismatch; exit 1; }
