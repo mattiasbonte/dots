@@ -97,9 +97,11 @@ paci htop btop vim nano xdg-utils xorg-xrandr xorg-xev xterm \
     feh nsxiv zathura zathura-pdf-mupdf clamav
 pari whosthere-bin yaak-bin gnu-netcat
 
-# Tailscale (mesh vpn — login happens in post-init: `sudo tailscale up`)
-paci tailscale
-sudo systemctl enable --now tailscaled
+# Tailscale (laptop-only: remote access for the roaming machine)
+if $IS_LAPTOP; then
+    paci tailscale
+    sudo systemctl enable --now tailscaled
+fi
 
 # --
 # DEVICE COMPLIANCE (Vanta device trust: encryption is handled at
