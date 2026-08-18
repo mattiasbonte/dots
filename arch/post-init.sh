@@ -18,7 +18,7 @@ gum confirm --default=false "Have you authorized github-cli (so that your github
 gum confirm --default=false "Have you authorized bitwarden-cli (needed for chezmoi)?" || bw login
 
 # CHEZMOI
-gum confirm "Initialize chezmoi?" && {
+[ -d "$HOME/.local/share/chezmoi/.git" ] && echo "chezmoi already initialized" || gum confirm "Initialize chezmoi?" && {
     bw sync
     echo "Initializing chezmoi..."
     export BW_SESSION=$(bw unlock --raw)
@@ -28,7 +28,7 @@ gum confirm "Initialize chezmoi?" && {
 
 # Post Chezmoi Setup
 source ~/.zshrc
-nvm install node
+command -v node >/dev/null 2>&1 || nvm install node
 
 # Shortcuts
 z ~/DOTS
@@ -65,7 +65,7 @@ sudo systemctl start valkey.service
 sudo systemctl enable valkey.service
 
 # Spotify
-go install github.com/envoy49/go-spotify-cli@latest
+[ -x "$HOME/go/bin/go-spotify-cli" ] || go install github.com/envoy49/go-spotify-cli@latest
 
 
 # Reboot

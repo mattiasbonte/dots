@@ -21,12 +21,12 @@ paci jq xsel xclip bottom wget atool aria2 cmake keychain xdotool bat tree age m
 
 # CONFIG
 git -C "$HOME/DOTS" pull
-find "$HOME/DOTS/arch/config" -mindepth 1 -maxdepth 1 -exec cp -r {} "$HOME/.config/" \; # files AND dirs
+find "$HOME/DOTS/arch/config" -mindepth 1 -maxdepth 1 -exec cp -rn {} "$HOME/.config/" \; # files AND dirs; -n = bootstrap only, never clobber
 git -C "$HOME/DOTS" remote set-url origin "git@github.com:mattiasbonte/dots.git"
 
 # ZSH
 paci zsh zsh-completions starship alacritty kitty tmux
-sudo chsh -s $(which zsh) $USER
+[ "$(basename "$SHELL")" = "zsh" ] || sudo chsh -s "$(which zsh)" "$USER"
 
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
     sh -c "$(wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)" "" --unattended
@@ -60,7 +60,7 @@ command -v nvm >/dev/null 2>&1 || curl -o- https://raw.githubusercontent.com/nvm
 
 # EDIT
 paci bob zed
-bob use nightly
+bob list 2>/dev/null | grep -q nightly || bob use nightly
 paci ttf-jetbrains-mono-nerd
 
 # DOTS
@@ -165,7 +165,7 @@ pari piper-tts
 mkdir -p "$HOME/.local/share/piper/voices"
 cd "$HOME/.local/share/piper/voices"
 
-gum confirm --default=true "Install Piper TTS voices (Cori - female British, Ryan - male American) (high quality)?" && {
+[ -f en_GB-cori-high.onnx ] && echo "Piper voices already installed" || gum confirm --default=true "Install Piper TTS voices (Cori - female British, Ryan - male American) (high quality)?" && {
     echo "Downloading Cori voice (female, British, high quality)..."
     wget -q --show-progress -O en_GB-cori-high.onnx \
         "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_GB/cori/high/en_GB-cori-high.onnx"

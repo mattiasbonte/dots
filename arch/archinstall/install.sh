@@ -7,6 +7,9 @@
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 
+# Only ever run from the Arch live ISO — never on an installed system.
+[ -d /run/archiso ] || { echo "✘ not the Arch live environment — refusing to run an installer here"; exit 1; }
+
 VENDOR=$(cat /sys/class/dmi/id/sys_vendor 2>/dev/null || echo unknown)
 case "$VENDOR" in
     *[Tt][Uu][Xx][Ee][Dd][Oo]*) HOST=wise-laptop ;;
@@ -17,6 +20,11 @@ echo "→ detected vendor '$VENDOR' → installing profile: $HOST"
 [ -f "$CFG/conf.json" ]  || { echo "missing $CFG/conf.json";  exit 1; }
 [ -f "$CFG/creds.json" ] || { echo "missing $CFG/creds.json"; exit 1; }
 grep -q encryption_password "$CFG/creds.json" || { echo "creds.json lacks encryption_password — refusing unencrypted install"; exit 1; }
+
+DISK=$(python3 -c "import json;print(json.load(open('$CFG/conf.json'))['disk_config']['device_modifications'][0]['device'])")
+echo "⚠ this WIPES $DISK completely."
+read -rp "type the disk path to confirm: " CONFIRM
+[ "$CONFIRM" = "$DISK" ] || { echo "mismatch — aborting"; exit 1; }
 
 pacman -Sy --noconfirm archinstall
 
