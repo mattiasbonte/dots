@@ -18,7 +18,7 @@ if [ "${1:-}" = "--iso" ]; then
     read -rp "type the device path to confirm: " C; [ "$C" = "$DEV" ] || { echo mismatch; exit 1; }
     sudo dd if=/tmp/arch.iso of="$DEV" bs=4M status=progress oflag=sync
     sync; echo "✔ ISO flashed — in the live env run:"
-    echo "  curl -sLO https://raw.githubusercontent.com/mattiasbonte/dots/main/arch/archinstall/install.sh && bash install.sh"
+    echo "  curl -sL https://raw.githubusercontent.com/mattiasbonte/dots/main/arch/archinstall/install.sh | bash"
     exit 0
 fi
 

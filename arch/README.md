@@ -68,7 +68,7 @@ bash /mnt/usb/install.sh
 # Fully automated flow (summary)
 
 1. Boot any Arch medium (netboot stick or plain ISO).
-2. `curl -sLO https://raw.githubusercontent.com/mattiasbonte/dots/main/arch/archinstall/install.sh && bash install.sh`
+2. `curl -sL https://raw.githubusercontent.com/mattiasbonte/dots/main/arch/archinstall/install.sh | bash`
    — detects the machine, fetches config, asks disk confirm + one password.
 3. Reboot → LUKS passphrase → login. The `wise-firstboot` service now
    provisions everything unattended (log: `/var/log/wise-firstboot.log`,
