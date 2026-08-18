@@ -10,12 +10,14 @@ main() {
 trap 'echo "✘ failed at line $LINENO — machine is mid-wipe anyway: fix + re-run is safe."' ERR
 [ -d /run/archiso ] || { echo "✘ not the Arch live environment — refusing"; exit 1; }
 
-# ── profile ─────────────────────────────────────────────────────────
+# ── profile: capabilities decide, hostname just names ───────────────
 VENDOR=$(cat /sys/class/dmi/id/sys_vendor 2>/dev/null || echo unknown)
-case "$VENDOR" in
-    *[Tt][Uu][Xx][Ee][Dd][Oo]*) HOST=wise-laptop ;;
-    *)                          HOST=wise-desktop ;;
+CHASSIS=$(cat /sys/class/dmi/id/chassis_type 2>/dev/null || echo 3)
+case "$CHASSIS" in
+    8|9|10|11|14|31|32) CLASS=laptop ;;   # DMI portable/laptop/notebook/…
+    *)                  CLASS=desktop ;;
 esac
+DEFAULT_HOST="wise-$CLASS"
 DISK=/dev/nvme0n1
 ESP=${DISK}p1
 ROOT=${DISK}p2
@@ -27,10 +29,10 @@ LOCALE=en_US.UTF-8
 if lspci | grep -qi nvidia; then GPU_PKGS="nvidia-open-dkms nvidia-utils"
 else GPU_PKGS="mesa vulkan-intel"; fi
 
-# Per-host: desktop gets KDE next to awesome; laptop is awesome-only
-case "$HOST" in
-    wise-desktop) HOST_PKGS="plasma-meta konsole" ;;
-    wise-laptop)  HOST_PKGS="brightnessctl" ;;
+# Per-class: desktops get KDE next to awesome; laptops are awesome-only
+case "$CLASS" in
+    desktop) HOST_PKGS="plasma-meta konsole" ;;
+    laptop)  HOST_PKGS="brightnessctl" ;;
 esac
 
 PKGS="base linux-zen linux-zen-headers linux-firmware e2fsprogs cryptsetup
@@ -44,7 +46,8 @@ grep -q GenuineIntel /proc/cpuinfo && PKGS="$PKGS intel-ucode" || PKGS="$PKGS am
 timedatectl set-ntp true 2>/dev/null || true
 curl -fsm 10 https://archlinux.org >/dev/null 2>&1 \
     || { echo "✘ no internet — plug ethernet (or iwctl) and re-run"; exit 1; }
-echo "→ profile: $HOST  disk: $DISK  gpu: ${GPU_PKGS:-none}"
+read -rp "hostname [$DEFAULT_HOST]: " HOST; HOST=${HOST:-$DEFAULT_HOST}
+echo "→ class: $CLASS  host: $HOST  vendor: $VENDOR  disk: $DISK  gpu: ${GPU_PKGS:-none}"
 echo "⚠ this WIPES $DISK completely."
 read -rp "type the disk path to confirm: " C
 [ "$C" = "$DISK" ] || { echo "mismatch — aborting"; exit 1; }
