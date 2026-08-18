@@ -17,7 +17,27 @@ case "$VENDOR" in
 esac
 CFG="$HERE/configs/$HOST"
 echo "→ detected vendor '$VENDOR' → installing profile: $HOST"
-[ -f "$CFG/conf.json" ]  || { echo "missing $CFG/conf.json";  exit 1; }
+
+# No local configs (e.g. piped via curl from a plain ISO boot)? Fetch the
+# config from the dots repo and build creds interactively — one password
+# prompt, used for both LUKS and the user account (rotate after install).
+if [ ! -f "$CFG/conf.json" ]; then
+    echo "→ no local config — fetching from github:mattiasbonte/dots"
+    CFG=$(mktemp -d)
+    SHORT=${HOST#wise-}   # desktop / laptop
+    curl -fsSL -o "$CFG/conf.json"         "https://raw.githubusercontent.com/mattiasbonte/dots/main/arch/archinstall/conf_${SHORT}.json"         || { echo "✘ no conf_${SHORT}.json in dots repo"; exit 1; }
+    read -rsp "choose temp password (LUKS + user 'wise', rotate later): " PW; echo
+    read -rsp "repeat: " PW2; echo
+    [ "$PW" = "$PW2" ] || { echo "mismatch"; exit 1; }
+    HASH=$(openssl passwd -6 "$PW")
+    python3 - "$CFG/creds.json" "$PW" "$HASH" <<'PY'
+import json,sys
+open(sys.argv[1],'w').write(json.dumps({
+  "root_enc_password": None,
+  "encryption_password": sys.argv[2],
+  "users":[{"username":"wise","enc_password":sys.argv[3],"groups":[],"sudo":True}]},indent=2))
+PY
+fi
 [ -f "$CFG/creds.json" ] || { echo "missing $CFG/creds.json"; exit 1; }
 grep -q encryption_password "$CFG/creds.json" || { echo "creds.json lacks encryption_password — refusing unencrypted install"; exit 1; }
 
