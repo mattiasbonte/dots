@@ -25,7 +25,7 @@ active_profile() {
     [ -n "$p" ] && printf '%s/.zen/%s\n' "$HOME" "$p"
 }
 
-zen_running() { pgrep -f 'zen-bin|zen-browser' >/dev/null; }
+zen_running() { pgrep -x zen-bin >/dev/null; }
 
 PROFILE=$(active_profile) || { echo "✘ cannot resolve the active Zen profile"; exit 1; }
 [ -d "$PROFILE" ] || { echo "✘ active profile does not exist: $PROFILE"; exit 1; }
@@ -103,5 +103,17 @@ print(f"applied {len(data['workspaces'])} spaces, {len(data['pins'])} pins")
 PY
     echo "✔ applied into $(basename "$PROFILE")"
     ;;
-*) echo "usage: zen-config.sh [export|apply]"; exit 1 ;;
+session-push)
+    # Open + pinned tabs render from zen-sessions.jsonlz4 — 3 MB of binary that
+    # changes on every tab action and carries session URLs, so it is deliberately
+    # NOT in chezmoi. Push it machine-to-machine instead, both Zens closed.
+    HOST="${2:?usage: zen-config.sh session-push <host>}"
+    zen_running && { echo "✘ close Zen here first"; exit 1; }
+    ssh "$HOST" 'pgrep -x zen-bin >/dev/null' && { echo "✘ close Zen on $HOST first"; exit 1; }
+    REMOTE=$(ssh "$HOST" 'awk -F= "/^\[Install/{i=1;next} i&&/^Default=/{print \$2;exit}" ~/.zen/profiles.ini')
+    [ -n "$REMOTE" ] || { echo "✘ cannot resolve the profile on $HOST"; exit 1; }
+    rsync -a "$PROFILE/zen-sessions.jsonlz4" "$HOST:.zen/$REMOTE/zen-sessions.jsonlz4"
+    echo "✔ session pushed to $HOST ($REMOTE)"
+    ;;
+*) echo "usage: zen-config.sh [export|apply|session-push <host>]"; exit 1 ;;
 esac
