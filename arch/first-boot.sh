@@ -82,7 +82,9 @@ pari pnpm-bin pyenv luarocks postgresql-libs opencode-bin claude-code sqlit
 
 # EDIT
 paci bob zed
-bob list 2>/dev/null | grep -q nightly || { yes | bob use nightly; } || fail "bob use nightly (neovim)"
+# bob prompts "add to PATH?" on /dev/tty (unpipeable) unless nvim-bin is already in PATH
+export PATH="$PATH:$HOME/.local/share/bob/nvim-bin"
+bob list 2>/dev/null | grep -q nightly || bob use nightly || fail "bob use nightly (neovim)"
 paci ttf-jetbrains-mono-nerd
 
 # DOTS
