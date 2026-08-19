@@ -1,80 +1,107 @@
 #!/usr/bin/env bash
-# Zen spaces + pinned tabs live in places.sqlite (26 MB of history — not
-# trackable). This exports just the structural rows to a small JSON file that
-# chezmoi tracks, and imports them on another machine.
+# Zen config that survives a fresh install.
 #
-#   zen-config.sh export   # on the machine that owns the config
-#   zen-config.sh import   # on a new machine, with Zen closed
+# Zen profile directories are randomly named per machine, so tracking
+# ~/.zen/<random>.Default (release)/... in chezmoi only works while we also
+# force profiles.ini — and breaks as soon as Zen makes its own profile.
+# Instead the tracked config lives in ~/.config/zen-profile (chezmoi-managed,
+# machine-neutral) and is copied INTO whichever profile is active.
+#
+#   zen-config.sh export   # capture this machine's config into the tracked dir
+#   zen-config.sh apply    # push the tracked config into the active profile
 set -euo pipefail
 
-OUT="$HOME/.config/zen/spaces.json"
-PROFILE=$(awk -F= '/^Path=/{p=$2} /^Default=1/{d=1} END{print p}' "$HOME/.zen/profiles.ini" 2>/dev/null)
-# profiles.ini lists the tracked profile under Install<hash>.Default — prefer it
-INSTALL_DEFAULT=$(awk -F= '/^\[Install/{i=1} i&&/^Default=/{print $2; exit}' "$HOME/.zen/profiles.ini" 2>/dev/null)
-[ -n "$INSTALL_DEFAULT" ] && PROFILE="$INSTALL_DEFAULT"
-DB="$HOME/.zen/$PROFILE/places.sqlite"
-[ -f "$DB" ] || { echo "✘ no places.sqlite at $DB"; exit 1; }
+SRC="$HOME/.config/zen-profile"
+# Files worth tracking: expensive to recreate, small, textual.
+FILES=(zen-keyboard-shortcuts.json containers.json handlers.json xulstore.json zen-themes.json)
+DIRS=(chrome)
 
-case "${1:-export}" in
+active_profile() {
+    local ini="$HOME/.zen/profiles.ini" p
+    [ -f "$ini" ] || return 1
+    # [Install<hash>] Default= wins over a [ProfileN] Default=1
+    p=$(awk -F= '/^\[Install/{i=1;next} i&&/^Default=/{print $2;exit}' "$ini")
+    [ -z "$p" ] && p=$(awk -F= '/^\[Profile/{d=0;path=""} /^Path=/{path=$2} /^Default=1/{d=1} d&&path{print path;exit}' "$ini")
+    [ -n "$p" ] && printf '%s/.zen/%s\n' "$HOME" "$p"
+}
+
+zen_running() { pgrep -f 'zen-bin|zen-browser' >/dev/null; }
+
+PROFILE=$(active_profile) || { echo "✘ cannot resolve the active Zen profile"; exit 1; }
+[ -d "$PROFILE" ] || { echo "✘ active profile does not exist: $PROFILE"; exit 1; }
+
+case "${1:-apply}" in
 export)
-    mkdir -p "$(dirname "$OUT")"
+    mkdir -p "$SRC"
+    for f in "${FILES[@]}"; do [ -f "$PROFILE/$f" ] && cp -a "$PROFILE/$f" "$SRC/$f"; done
+    for d in "${DIRS[@]}"; do [ -d "$PROFILE/$d" ] && { rm -rf "${SRC:?}/$d"; cp -a "$PROFILE/$d" "$SRC/$d"; }; done
     TMP=$(mktemp); trap 'rm -f "$TMP"' EXIT
-    cp "$DB" "$TMP"   # the live DB is locked while Zen runs
-    sqlite3 "$TMP" <<'SQL' | python3 -c "import sys,json; print(json.dumps(json.loads(sys.stdin.read()), indent=2))" > "$OUT"
-.mode json
-SELECT json_object(
-  'workspaces', (SELECT json_group_array(json_object(
-      'uuid',uuid,'name',name,'icon',icon,'container_id',container_id,'position',position,
-      'theme_type',theme_type,'theme_colors',theme_colors,'theme_opacity',theme_opacity,
-      'theme_rotation',theme_rotation,'theme_texture',theme_texture))
-    FROM (SELECT * FROM zen_workspaces ORDER BY position)),
-  'pins', (SELECT json_group_array(json_object(
-      'uuid',uuid,'title',title,'url',url,'container_id',container_id,'workspace_uuid',workspace_uuid,
-      'position',position,'is_essential',is_essential,'is_group',is_group,'parent_uuid',parent_uuid,
-      'edited_title',edited_title,'is_folder_collapsed',is_folder_collapsed,
-      'folder_icon',folder_icon,'folder_parent_uuid',folder_parent_uuid))
-    FROM (SELECT * FROM zen_pins ORDER BY workspace_uuid, position))
-) AS x;
-SQL
-    python3 - "$OUT" <<'PY'
-import json,sys
-d=json.load(open(sys.argv[1]))
-# sqlite .mode json wraps the row; unwrap to the object itself
-if isinstance(d,list) and len(d)==1 and 'x' in d[0]:
-    d=json.loads(d[0]['x'])
-    json.dump(d,open(sys.argv[1],'w'),indent=2)
-print(f"✔ exported {len(d['workspaces'])} spaces, {len(d['pins'])} pins → {sys.argv[1]}")
+    cp "$PROFILE/places.sqlite" "$TMP"        # live DB is locked while Zen runs
+    python3 - "$TMP" "$SRC/spaces.json" <<'PY'
+import json,sqlite3,sys
+con=sqlite3.connect(sys.argv[1]); con.row_factory=sqlite3.Row
+def rows(sql):
+    try: return [dict(r) for r in con.execute(sql)]
+    except sqlite3.OperationalError: return []
+data={
+ "workspaces": rows("SELECT uuid,name,icon,container_id,position,theme_type,theme_colors,theme_opacity,theme_rotation,theme_texture FROM zen_workspaces ORDER BY position"),
+ "pins": rows("SELECT uuid,title,url,container_id,workspace_uuid,position,is_essential,is_group,parent_uuid,edited_title,is_folder_collapsed,folder_icon,folder_parent_uuid FROM zen_pins ORDER BY workspace_uuid,position"),
+}
+json.dump(data,open(sys.argv[2],'w'),indent=2,ensure_ascii=False)
+print(f"exported {len(data['workspaces'])} spaces, {len(data['pins'])} pins")
 PY
+    echo "✔ tracked config written to $SRC (profile: $(basename "$PROFILE"))"
     ;;
-import)
-    [ -f "$OUT" ] || { echo "✘ nothing to import: $OUT missing"; exit 1; }
-    pgrep -x zen >/dev/null && { echo "✘ close Zen first (it holds places.sqlite open)"; exit 1; }
-    cp "$DB" "$DB.bak-$(date +%Y%m%d%H%M%S)"
-    python3 - "$OUT" "$DB" <<'PY'
-import json,sqlite3,sys,time
-data=json.load(open(sys.argv[1])); con=sqlite3.connect(sys.argv[2]); now=int(time.time()*1000)
-w=[(x['uuid'],x['name'],x['icon'],x['container_id'],x['position'],now,now,
-    x['theme_type'],x['theme_colors'],x['theme_opacity'],x['theme_rotation'],x['theme_texture'])
-   for x in data['workspaces']]
-con.executemany("""INSERT INTO zen_workspaces
- (uuid,name,icon,container_id,position,created_at,updated_at,theme_type,theme_colors,theme_opacity,theme_rotation,theme_texture)
- VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
- ON CONFLICT(uuid) DO UPDATE SET name=excluded.name,icon=excluded.icon,position=excluded.position,
- updated_at=excluded.updated_at,theme_type=excluded.theme_type,theme_colors=excluded.theme_colors,
- theme_opacity=excluded.theme_opacity,theme_rotation=excluded.theme_rotation,theme_texture=excluded.theme_texture""", w)
-p=[(x['uuid'],x['title'],x['url'],x['container_id'],x['workspace_uuid'],x['position'],x['is_essential'],
-    x['is_group'],x['parent_uuid'],now,now,x['edited_title'],x['is_folder_collapsed'],x['folder_icon'],x['folder_parent_uuid'])
-   for x in data['pins']]
-con.executemany("""INSERT INTO zen_pins
- (uuid,title,url,container_id,workspace_uuid,position,is_essential,is_group,parent_uuid,created_at,updated_at,
-  edited_title,is_folder_collapsed,folder_icon,folder_parent_uuid)
- VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
- ON CONFLICT(uuid) DO UPDATE SET title=excluded.title,url=excluded.url,workspace_uuid=excluded.workspace_uuid,
- position=excluded.position,is_essential=excluded.is_essential,is_group=excluded.is_group,
- parent_uuid=excluded.parent_uuid,updated_at=excluded.updated_at""", p)
+apply)
+    [ -d "$SRC" ] || { echo "✘ nothing tracked at $SRC"; exit 1; }
+    zen_running && { echo "✘ close Zen first — it rewrites prefs.js and holds places.sqlite"; exit 1; }
+    for f in "${FILES[@]}"; do [ -f "$SRC/$f" ] && cp -a "$SRC/$f" "$PROFILE/$f"; done
+    for d in "${DIRS[@]}"; do [ -d "$SRC/$d" ] && { rm -rf "$PROFILE/${d:?}"; cp -a "$SRC/$d" "$PROFILE/$d"; }; done
+
+    [ -f "$SRC/spaces.json" ] && python3 - "$SRC/spaces.json" "$PROFILE" <<'PY'
+import json,sqlite3,sys,time,os,re,shutil
+data=json.load(open(sys.argv[1])); prof=sys.argv[2]; db=os.path.join(prof,"places.sqlite")
+shutil.copy2(db, db+".bak")
+con=sqlite3.connect(db); now=int(time.time()*1000)
+# Zen creates these tables only once its workspace UI initialises; on a fresh
+# profile they may not exist yet, so create them if absent.
+con.executescript("""
+CREATE TABLE IF NOT EXISTS zen_workspaces (id INTEGER PRIMARY KEY, uuid TEXT UNIQUE NOT NULL, name TEXT NOT NULL,
+ icon TEXT, container_id INTEGER, position INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL,
+ updated_at INTEGER NOT NULL, theme_type TEXT, theme_colors TEXT, theme_opacity REAL, theme_rotation INTEGER, theme_texture REAL);
+CREATE TABLE IF NOT EXISTS zen_pins (id INTEGER PRIMARY KEY, uuid TEXT UNIQUE NOT NULL, title TEXT NOT NULL, url TEXT,
+ container_id INTEGER, workspace_uuid TEXT, position INTEGER NOT NULL DEFAULT 0, is_essential BOOLEAN NOT NULL DEFAULT 0,
+ is_group BOOLEAN NOT NULL DEFAULT 0, parent_uuid TEXT, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL,
+ edited_title BOOLEAN NOT NULL DEFAULT 0, is_folder_collapsed BOOLEAN NOT NULL DEFAULT 0, folder_icon TEXT DEFAULT NULL,
+ folder_parent_uuid TEXT DEFAULT NULL);
+""")
+def upsert(table, rows, keys):
+    for r in rows:
+        cols=list(r.keys())+["created_at","updated_at"]
+        vals=[r[c] for c in r]+[now,now]
+        sets=",".join(f"{c}=excluded.{c}" for c in keys)
+        con.execute(f"INSERT INTO {table} ({','.join(cols)}) VALUES ({','.join('?'*len(cols))}) "
+                    f"ON CONFLICT(uuid) DO UPDATE SET {sets},updated_at=excluded.updated_at", vals)
+upsert("zen_workspaces", data["workspaces"], ["name","icon","position","theme_type","theme_colors","theme_opacity","theme_rotation","theme_texture"])
+upsert("zen_pins", data["pins"], ["title","url","workspace_uuid","position","is_essential","is_group","parent_uuid"])
 con.commit()
-print(f"✔ imported {len(w)} spaces, {len(p)} pins")
+
+# The active-space pref points at a workspace uuid. A profile Zen created for
+# itself references one that does not exist here, and Zen then shows nothing.
+uuids={w["uuid"] for w in data["workspaces"]}
+prefs=os.path.join(prof,"prefs.js")
+if uuids and os.path.exists(prefs):
+    txt=open(prefs).read()
+    m=re.search(r'"zen\.workspaces\.active",\s*"([^"]*)"', txt)
+    if not m or m.group(1) not in uuids:
+        first=data["workspaces"][0]["uuid"]
+        line=f'user_pref("zen.workspaces.active", "{first}");'
+        txt=re.sub(r'user_pref\("zen\.workspaces\.active",\s*"[^"]*"\);', line, txt) if m else txt.rstrip()+"\n"+line+"\n"
+        open(prefs,"w").write(txt)
+        print(f"active space repaired -> {data['workspaces'][0]['name']}")
+print(f"applied {len(data['workspaces'])} spaces, {len(data['pins'])} pins")
 PY
+    echo "✔ applied into $(basename "$PROFILE")"
     ;;
-*) echo "usage: zen-config.sh [export|import]"; exit 1 ;;
+*) echo "usage: zen-config.sh [export|apply]"; exit 1 ;;
 esac
