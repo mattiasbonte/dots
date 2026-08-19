@@ -63,9 +63,6 @@ case "$(cat /etc/hostname)" in wise-laptop*)
         [ -f "$HOME/.config/systemd/user/$u" ] && systemctl --user enable "$u"
     done ;;
 esac
-if command -v tailscale >/dev/null && ! tailscale status >/dev/null 2>&1; then # installed = chosen in first-boot
-    gum confirm "Connect Tailscale now? (prints an auth URL to open in a browser)" && sudo tailscale up || echo "later: sudo tailscale up"
-fi
 sudo systemctl enable --now bluetooth.service # system service, not user
 case "$(cat /etc/hostname)" in wise-laptop*) systemctl --user enable autorandr.service ;; esac # multi-display is a laptop concern
 
@@ -77,6 +74,12 @@ sudo systemctl enable valkey.service
 # Spotify
 [ -x "$HOME/go/bin/go-spotify-cli" ] || go install github.com/envoy49/go-spotify-cli@latest
 
+
+# Tailscale auth (last on purpose: it blocks on a browser URL — skipping
+# or Ctrl+C here can no longer cost any other step)
+if command -v tailscale >/dev/null && ! tailscale status >/dev/null 2>&1; then
+    gum confirm "Connect Tailscale now? (prints an auth URL to open in a browser)" && sudo tailscale up || echo "later: sudo tailscale up"
+fi
 
 # Reboot
 gum confirm --default=false "Reboot now?" && { echo "Rebooting system..."; reboot; } || echo "Reboot skipped. You can reboot manually later."
