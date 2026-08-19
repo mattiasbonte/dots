@@ -149,6 +149,10 @@ done
 chmod +x "$HOME/DOTS/arch/bin/device-evidence.sh"
 echo "→ after setup, run ~/DOTS/arch/bin/device-evidence.sh and upload the file to Vanta"
 
+# caps:escape at the X-server level — applies in every session and at the
+# SDDM greeter, independent of WM autostarts
+try "x11 keymap (caps:escape)" sudo localectl set-x11-keymap us pc105+inet "" caps:escape,terminate:ctrl_alt_bksp
+
 # WM
 paci arandr autorandr pavucontrol redshift
     # arandr: screen management
