@@ -11,6 +11,10 @@ cd "$HOME" # unattended service starts in / — clones/builds need a writable CW
 # full transcript — failures in the panel reference it for the actual error text
 LOG="$HOME/.local/state/first-boot.log"; mkdir -p "$HOME/.local/state"
 exec > >(tee "$LOG") 2>&1
+# stdout is a pipe now — gum renders its TUI to stdout, so point it at the
+# real terminal or it degrades to colorless ASCII
+GUMTTY=/dev/stdout; [ -w /dev/tty ] && GUMTTY=/dev/tty
+gum() { command gum "$@" >$GUMTTY; }
 
 # NONINTERACTIVE=1 → every gum prompt takes its default (used by the
 # wise-firstboot service that runs this unattended after install)
