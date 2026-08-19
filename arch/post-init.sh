@@ -120,7 +120,7 @@ case "$(cat /etc/hostname)" in wise-laptop*) try "enable autorandr" systemctl --
 try "valkey enable+start" sudo systemctl enable --now valkey.service
 
 # Spotify
-[ -x "$HOME/go/bin/go-spotify-cli" ] || try "go-spotify-cli install" go install github.com/envoy49/go-spotify-cli@latest
+command -v go-spotify-cli >/dev/null 2>&1 || try "go-spotify-cli install" go install github.com/envoy49/go-spotify-cli@latest
 
 # ── VERIFY — assert outcomes, not attempts ──
 echo; echo "── verifying outcomes"
@@ -133,7 +133,7 @@ command -v node >/dev/null 2>&1 || fail "verify: node not on PATH"
 systemctl --user is-enabled wise-config.service &>/dev/null || fail "verify: wise-config.service not enabled"
 systemctl is-active bluetooth.service &>/dev/null || fail "verify: bluetooth not active"
 systemctl is-active valkey.service &>/dev/null || fail "verify: valkey not active"
-[ -x "$HOME/go/bin/go-spotify-cli" ] || fail "verify: go-spotify-cli missing"
+command -v go-spotify-cli >/dev/null 2>&1 || [ -x "$(go env GOBIN)/go-spotify-cli" ] || fail "verify: go-spotify-cli missing"
 
 # SUMMARY
 echo; echo
