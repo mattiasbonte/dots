@@ -7,6 +7,16 @@
 # other step is tracked and a VERIFY pass asserts outcomes at the end.
 # --
 
+# Always run the newest version of this script (see first-boot.sh)
+if [ "${DOTS_SELFUPDATE:-1}" = 1 ] && [ -d "$HOME/DOTS/.git" ]; then
+    BEFORE=$(git -C "$HOME/DOTS" rev-parse HEAD 2>/dev/null)
+    git -C "$HOME/DOTS" pull --ff-only 2>/dev/null
+    if [ "$BEFORE" != "$(git -C "$HOME/DOTS" rev-parse HEAD 2>/dev/null)" ]; then
+        echo "→ DOTS updated — re-running the latest post-init"
+        DOTS_SELFUPDATE=0 exec zsh "$HOME/DOTS/arch/post-init.sh" "$@"
+    fi
+fi
+
 FAILED=()
 fail() { FAILED+=("$1"); echo "✘ FAILED: $1"; }
 try()  { local l=$1; shift; "$@" || fail "$l"; }

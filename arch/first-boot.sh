@@ -7,6 +7,17 @@
 # --
 
 cd "$HOME" # unattended service starts in / — clones/builds need a writable CWD
+# Always run the newest version of this script: pull, and if that changed
+# anything, re-exec so fixes land on the very run that needs them.
+if [ "${DOTS_SELFUPDATE:-1}" = 1 ] && [ -d "$HOME/DOTS/.git" ]; then
+    BEFORE=$(git -C "$HOME/DOTS" rev-parse HEAD 2>/dev/null)
+    git -C "$HOME/DOTS" pull --ff-only 2>/dev/null
+    if [ "$BEFORE" != "$(git -C "$HOME/DOTS" rev-parse HEAD 2>/dev/null)" ]; then
+        echo "→ DOTS updated — re-running the latest first-boot"
+        DOTS_SELFUPDATE=0 exec bash "$HOME/DOTS/arch/first-boot.sh" "$@"
+    fi
+fi
+
 
 # full transcript — failures in the panel reference it for the actual error text
 LOG="$HOME/.local/state/first-boot.log"; mkdir -p "$HOME/.local/state"
