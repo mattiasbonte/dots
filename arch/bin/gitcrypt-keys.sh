@@ -7,6 +7,7 @@
 #
 # Keys land in ~/.config/git-crypt (0600, chezmoi-ignored — never committed).
 set -euo pipefail
+trap 'echo "✘ failed at line $LINENO (command: $BASH_COMMAND)" >&2' ERR
 
 ITEM_NAME="git-crypt keys"
 REPOS=(aether belt)
