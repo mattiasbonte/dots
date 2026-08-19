@@ -69,7 +69,8 @@ paci jq xsel xclip bottom wget atool aria2 cmake keychain xdotool bat tree age m
 
 # CONFIG
 try "DOTS pull" git -C "$HOME/DOTS" pull
-find "$HOME/DOTS/arch/config" -mindepth 1 -maxdepth 1 -exec cp -rn {} "$HOME/.config/" \; # files AND dirs; -n = bootstrap only, never clobber
+# chezmoi owns every config file; DOTS only carries the minimal .zshrc that
+# keeps a pre-chezmoi shell usable (copied in the oh-my-zsh block below)
 # fetch stays https (works before any SSH key exists) — only pushes need auth
 try "DOTS remote (fetch=https)" git -C "$HOME/DOTS" remote set-url origin "https://github.com/mattiasbonte/dots.git"
 try "DOTS remote (push=ssh)"    git -C "$HOME/DOTS" remote set-url --push origin "git@github.com:mattiasbonte/dots.git"

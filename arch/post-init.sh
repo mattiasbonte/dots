@@ -112,8 +112,6 @@ try "xdg-mime plain"      xdg-mime default dev.zed.Zed.desktop text/plain
 # --
 try "loginctl linger" loginctl enable-linger $USER
 
-# Personal Config
-try "enable wise-config.service" systemctl --user enable wise-config.service # starts with the next graphical session
 # laptop-specific user units (files come from chezmoi)
 case "$(cat /etc/hostname)" in wise-laptop*)
     for u in aether-break.service aether-secrets-unlock.service aether-tunnel.service \
@@ -137,10 +135,9 @@ echo; echo "── verifying outcomes"
 vfile "$HOME/.local/share/chezmoi/.git"
 vfile "$HOME/.config/tmux/tmux.conf"
 vfile "$HOME/.config/alacritty/alacritty.toml"
-vfile "$HOME/.config/systemd/user/wise-config.service"
 vfile "$HOME/.zen/profiles.ini"
 command -v node >/dev/null 2>&1 || fail "verify: node not on PATH"
-systemctl --user is-enabled wise-config.service &>/dev/null || fail "verify: wise-config.service not enabled"
+vfile "$HOME/.xprofile"
 systemctl is-active bluetooth.service &>/dev/null || fail "verify: bluetooth not active"
 systemctl is-active valkey.service &>/dev/null || fail "verify: valkey not active"
 command -v go-spotify-cli >/dev/null 2>&1 || [ -x "$(go env GOBIN)/go-spotify-cli" ] || fail "verify: go-spotify-cli missing"

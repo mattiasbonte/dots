@@ -1,5 +1,0 @@
-# @see https://yazi-rs.github.io/docs/configuration/yazi#manager
-[manager]
-show_hidden = true
-ratio = [1, 3, 4]
-
