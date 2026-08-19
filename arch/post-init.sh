@@ -14,14 +14,16 @@ if ! command -v bw &>/dev/null; then
     echo "Install bitwarden-cli first: 'sudo pacman -S bitwarden-cli'"
     exit 1
 fi
-gum confirm --default=false "Have you authorized github-cli (so that your github ssh key is set up)?" || gh auth login
-# dotfiles is private + cloned over SSH — verify the key actually works, don't trust the answer above
+# Gates verify for themselves — no self-reported y/n answers
+gh auth status &>/dev/null || gh auth login
+gh auth status &>/dev/null || { echo "✘ github-cli still not authenticated"; exit 1; }
 if ! ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
     echo "✘ GitHub SSH auth is NOT working — chezmoi (and DOTS pushes) would fail."
     echo "  fix: gh auth login → GitHub.com → SSH → upload/generate a key, then re-run this script"
     exit 1
 fi
-gum confirm --default=false "Have you authorized bitwarden-cli (needed for chezmoi)?" || bw login
+bw login --check &>/dev/null || bw login
+bw login --check &>/dev/null || { echo "✘ bitwarden-cli still not logged in"; exit 1; }
 
 # CHEZMOI
 if [ -d "$HOME/.local/share/chezmoi/.git" ]; then echo "chezmoi already initialized"; else
