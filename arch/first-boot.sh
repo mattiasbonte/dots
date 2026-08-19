@@ -247,7 +247,14 @@ else
 fi
 
 if $IS_LAPTOP; then
+    # laptop travels: never listen on an untrusted network
     printf 'ListenAddress 127.0.0.1\n' | sudo tee /etc/ssh/sshd_config.d/10-localhost-only.conf >/dev/null || fail "sshd localhost-only config"
+else
+    # desktop stays home: reachable on the LAN so the laptop can drive setup
+    # and debugging remotely (key auth only — no passwords over the wire)
+    sudo rm -f /etc/ssh/sshd_config.d/10-localhost-only.conf
+    printf 'PasswordAuthentication yes\nPermitRootLogin no\n' | sudo tee /etc/ssh/sshd_config.d/10-lan.conf >/dev/null || fail "sshd lan config"
+    try "sshd enable" sudo systemctl enable --now sshd
 fi
 
 if $IS_TUXEDO; then
