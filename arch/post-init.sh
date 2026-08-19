@@ -132,10 +132,15 @@ command -v go-spotify-cli >/dev/null 2>&1 || try "go-spotify-cli install" go ins
 
 # Zen profile dirs are randomly named per machine, so the tracked config is
 # copied into whichever profile is active (spaces, pins, keybinds, themes).
-if [ -d "$HOME/.config/zen-profile" ] && ! pgrep -f 'zen-bin|zen-browser' >/dev/null; then
-    try "zen config apply" bash "$HOME/DOTS/arch/bin/zen-config.sh" apply
-elif [ -d "$HOME/.config/zen-profile" ]; then
-    echo "→ Zen is running; skipping zen-config apply (run it later with Zen closed)"
+if [ -d "$HOME/.config/zen-profile" ]; then
+    if pgrep -x zen-bin >/dev/null; then
+        echo "→ Zen is running; skipping zen-config apply (re-run it with Zen closed)"
+    else
+        try "zen config apply" bash "$HOME/DOTS/arch/bin/zen-config.sh" apply
+        # tabs are not in chezmoi (binary + session URLs): push them from the laptop
+        [ -f "$HOME/.zen/$(awk -F= '/^\[Install/{i=1;next} i&&/^Default=/{print $2;exit}' "$HOME/.zen/profiles.ini" 2>/dev/null)/zen-sessions.jsonlz4" ] \
+            || echo "→ tabs: on the laptop run  zen-config.sh session-push $(cat /etc/hostname)"
+    fi
 fi
 
 # ── VERIFY — assert outcomes, not attempts ──
