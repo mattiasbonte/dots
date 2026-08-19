@@ -250,12 +250,13 @@ fi
 if $IS_LAPTOP; then
     # laptop travels: never listen on an untrusted network
     printf 'ListenAddress 127.0.0.1\n' | sudo tee /etc/ssh/sshd_config.d/10-localhost-only.conf >/dev/null || fail "sshd localhost-only config"
-else
+elif confirm --default=true "Enable SSH on the LAN? (lets your other machine push keys and drive the rest of the setup remotely)"; then
     # desktop stays home: reachable on the LAN so the laptop can drive setup
-    # and debugging remotely (key auth only — no passwords over the wire)
+    # and debugging remotely — far faster than working at this keyboard
     sudo rm -f /etc/ssh/sshd_config.d/10-localhost-only.conf
     printf 'PasswordAuthentication yes\nPermitRootLogin no\n' | sudo tee /etc/ssh/sshd_config.d/10-lan.conf >/dev/null || fail "sshd lan config"
     try "sshd enable" sudo systemctl enable --now sshd
+    LAN_IP=$(ip -4 route get 1.1.1.1 2>/dev/null | awk '{print $7; exit}')
 fi
 
 if $IS_TUXEDO; then
@@ -315,6 +316,10 @@ else
             "✅  FIRST-BOOT COMPLETE — all steps verified" "" \
             "Shells stay bare until post-init: plugins, keybinds, tmux," \
             "alacritty and zen all arrive with chezmoi." "" \
+            ${LAN_IP:+"From your other machine (paste there):"} \
+            ${LAN_IP:+"  ssh-copy-id wise@$LAN_IP"} \
+            ${LAN_IP:+"  rsync -av --chmod=D700,F600 ~/.config/git-crypt/ wise@$LAN_IP:.config/git-crypt/"} \
+            ${LAN_IP:+""} \
             "Next:" \
             "  1. bash ~/DOTS/arch/post-init.sh          chezmoi + gh/bw auth" \
             "  2. log out → pick session at the greeter" \
