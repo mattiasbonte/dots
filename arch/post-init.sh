@@ -58,6 +58,7 @@ BW_SESSION_CACHE="${XDG_RUNTIME_DIR:-/tmp}/bw-session"
 bw_session_ensure(){
     [[ -z $BW_SESSION && -r $BW_SESSION_CACHE ]] && export BW_SESSION="$(<$BW_SESSION_CACHE)"
     [[ -n $BW_SESSION ]] && bw status 2>/dev/null | grep -q '"status":"unlocked"' && return 0
+    echo "→ Bitwarden vault is locked. Enter your BITWARDEN master password (chezmoi reads secrets from it):"
     export BW_SESSION="$(bw unlock --raw)"
     [[ -n $BW_SESSION ]] || return 1
     (umask 077; print -r -- "$BW_SESSION" > "$BW_SESSION_CACHE")
