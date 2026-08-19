@@ -1,12 +1,12 @@
 # --
 # FIRST BOOT
 # @note installs all required packages to be able to quickly get the system up and running
+# Every step is tracked: failures collect in FAILED and print in the final
+# panel; a VERIFY pass at the end asserts outcomes (binaries/files exist),
+# so nothing can silently skip. Idempotent — re-run until the panel is green.
 # --
 
 cd "$HOME" # unattended service starts in / — clones/builds need a writable CWD
-
-# UPDATE DBS
-sudo pacman -Syu --noconfirm && { command -v paru >/dev/null && paru -Syu --noconfirm || true; }
 
 # NONINTERACTIVE=1 → every gum prompt takes its default (used by the
 # wise-firstboot service that runs this unattended after install)
@@ -14,8 +14,16 @@ confirm() { if [ "${NONINTERACTIVE:-0}" = 1 ]; then [ "$1" = "--default=true" ];
 
 # FN — failures are collected, not fatal; summary prints at the end
 FAILED=()
-paci() { [ -z "$1" ] && return 0; sudo pacman -S --needed --noconfirm "$@" || FAILED+=("pacman: $*"); }
-pari() { [ -z "$1" ] && return 0; command -v paru >/dev/null 2>&1 && { paru -S --needed --noconfirm "$@" || FAILED+=("paru: $*"); } || FAILED+=("paru missing: $*"); }
+fail() { FAILED+=("$1"); echo "✘ FAILED: $1"; }
+try()  { local l=$1; shift; "$@" || fail "$l"; }
+paci() { [ -z "$1" ] && return 0; sudo pacman -S --needed --noconfirm "$@" || fail "pacman: $*"; }
+pari() { [ -z "$1" ] && return 0; command -v paru >/dev/null 2>&1 && { paru -S --needed --noconfirm "$@" || fail "paru: $*"; } || fail "paru missing: $*"; }
+vcmd() { local c; for c in "$@"; do command -v "$c" >/dev/null 2>&1 || fail "verify: '$c' not on PATH"; done; }
+vfile() { [ -e "$1" ] || fail "verify: missing $1"; }
+
+# UPDATE DBS
+try "system upgrade (pacman -Syu)" sudo pacman -Syu --noconfirm
+command -v paru >/dev/null 2>&1 && try "AUR upgrade (paru -Syu)" paru -Syu --noconfirm
 
 # AUR helper — bootstrapped FIRST (everything pari depends on it), fully
 # unattended (--noconfirm), loud on failure.
@@ -27,7 +35,7 @@ if ! command -v paru >/dev/null 2>&1; then
         && command -v paru >/dev/null 2>&1; then
         echo "✔ paru bootstrapped"
     else
-        FAILED+=("paru bootstrap — ALL AUR installs below will fail")
+        fail "paru bootstrap — ALL AUR installs below will fail"
     fi
     rm -rf "$PARU_TMP"
 fi
@@ -41,19 +49,19 @@ paci base-devel git rust go
 paci jq xsel xclip bottom wget atool aria2 cmake keychain xdotool bat tree age mpv gum glow dialog bitwarden bitwarden-cli xprintidle dex alsa-utils
 
 # CONFIG
-git -C "$HOME/DOTS" pull
+try "DOTS pull" git -C "$HOME/DOTS" pull
 find "$HOME/DOTS/arch/config" -mindepth 1 -maxdepth 1 -exec cp -rn {} "$HOME/.config/" \; # files AND dirs; -n = bootstrap only, never clobber
 # fetch stays https (works before any SSH key exists) — only pushes need auth
-git -C "$HOME/DOTS" remote set-url origin "https://github.com/mattiasbonte/dots.git"
-git -C "$HOME/DOTS" remote set-url --push origin "git@github.com:mattiasbonte/dots.git"
+try "DOTS remote (fetch=https)" git -C "$HOME/DOTS" remote set-url origin "https://github.com/mattiasbonte/dots.git"
+try "DOTS remote (push=ssh)"    git -C "$HOME/DOTS" remote set-url --push origin "git@github.com:mattiasbonte/dots.git"
 
 # ZSH
 paci zsh zsh-completions starship alacritty kitty tmux
-[ "$(basename "$SHELL")" = "zsh" ] || sudo chsh -s "$(which zsh)" "$USER"
+[ "$(basename "$SHELL")" = "zsh" ] || try "chsh to zsh" sudo chsh -s "$(which zsh)" "$USER"
 
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
-    sh -c "$(wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)" "" --unattended
-    cp -r "$HOME/DOTS/arch/config/zshrc" "$HOME/.zshrc"
+    sh -c "$(wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)" "" --unattended || fail "oh-my-zsh install"
+    cp -r "$HOME/DOTS/arch/config/zshrc" "$HOME/.zshrc" || fail "bootstrap .zshrc copy"
 else
     echo "Oh My Zsh already installed, skipping installation"
 fi
@@ -65,16 +73,16 @@ pari resvg
 
 # GIT
 paci git git-crypt lazygit github-cli git-delta difftastic
-git config --global user.email "info@mattiasbonte.dev"
-git config --global user.name "Mattias B."
+try "git identity (email)" git config --global user.email "info@mattiasbonte.dev"
+try "git identity (name)"  git config --global user.name "Mattias B."
 
 # DEV
 pari pnpm-bin pyenv luarocks postgresql-libs opencode-bin claude-code sqlit
-command -v nvm >/dev/null 2>&1 || curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash # NVM
+[ -s "$HOME/.nvm/nvm.sh" ] || { curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash; } || fail "nvm install" # NVM
 
 # EDIT
 paci bob zed
-bob list 2>/dev/null | grep -q nightly || yes | bob use nightly
+bob list 2>/dev/null | grep -q nightly || { yes | bob use nightly; } || fail "bob use nightly (neovim)"
 paci ttf-jetbrains-mono-nerd
 
 # DOTS
@@ -103,7 +111,7 @@ pari whosthere-bin yaak-bin gnu-netcat
 TS_DEFAULT="--default=false"; $IS_LAPTOP && TS_DEFAULT="--default=true"
 if confirm "$TS_DEFAULT" "Install Tailscale? (mesh VPN / remote access)"; then
     paci tailscale
-    sudo systemctl enable --now tailscaled
+    try "tailscaled enable" sudo systemctl enable --now tailscaled
 fi
 
 # --
@@ -122,7 +130,7 @@ DESKTOP
 # KDE session: enforce kscreenlocker regardless of defaults
 for KW in kwriteconfig6 kwriteconfig5; do
     if command -v "$KW" >/dev/null 2>&1; then
-        "$KW" --file kscreenlockerrc --group Daemon --key Autolock true
+        try "kscreenlocker config" "$KW" --file kscreenlockerrc --group Daemon --key Autolock true
         "$KW" --file kscreenlockerrc --group Daemon --key Timeout 15
         "$KW" --file kscreenlockerrc --group Daemon --key LockOnResume true
         break
@@ -154,8 +162,8 @@ fi
 
 # Multilib
 paci pacman-contrib
-sudo sed -i '/^#\[multilib\]/,/^#Include = \/etc\/pacman.d\/mirrorlist/ s/^#//' /etc/pacman.conf
-sudo pacman -Sy
+try "enable multilib repo" sudo sed -i '/^#\[multilib\]/,/^#Include = \/etc\/pacman.d\/mirrorlist/ s/^#//' /etc/pacman.conf
+try "pacman -Sy (multilib)" sudo pacman -Sy
 
 # Intel - https://github.com/lutris/docs/blob/master/InstallingDrivers.md#intel
 paci lib32-mesa vulkan-intel lib32-vulkan-intel vulkan-icd-loader lib32-vulkan-icd-loader
@@ -166,52 +174,55 @@ paci linux-zen-headers nvidia-open-dkms nvidia-utils lib32-nvidia-utils nvidia-s
 
 # Wine - https://github.com/lutris/docs/blob/master/WineDependencies.md
 paci wine-staging
-paci --asdeps \
+sudo pacman -S --needed --noconfirm --asdeps \
     giflib lib32-giflib gnutls lib32-gnutls v4l-utils lib32-v4l-utils libpulse \
     lib32-libpulse alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib sqlite lib32-sqlite libxcomposite \
     lib32-libxcomposite ocl-icd lib32-ocl-icd libva lib32-libva gtk3 lib32-gtk3 gst-plugins-base-libs \
-    lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader sdl2-compat lib32-sdl2-compat
+    lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader sdl2-compat lib32-sdl2-compat \
+    || fail "wine dependencies (--asdeps)"
 
 # Packs
 paci steam lutris teamspeak3 discord obsidian
 pari protonplus
 
 # DICTATION
-if [ ! -d "$HOME/whisper.cpp" ]; then
-    cd ~
-    git clone https://github.com/ggerganov/whisper.cpp
-    cd whisper.cpp
-    cmake -B build && cmake --build build -j --config Release # binary: build/bin/whisper-cli
-    bash models/download-ggml-model.sh small
+if [ ! -f "$HOME/whisper.cpp/build/bin/whisper-cli" ]; then
+    ( set -e
+      cd "$HOME"
+      [ -d whisper.cpp ] || git clone https://github.com/ggerganov/whisper.cpp
+      cd whisper.cpp
+      cmake -B build && cmake --build build -j --config Release # binary: build/bin/whisper-cli
+      bash models/download-ggml-model.sh small
+    ) || fail "whisper.cpp build"
 else
-    echo "Whisper.cpp already installed, skipping installation"
+    echo "Whisper.cpp already built, skipping"
 fi
 
 # TTS (Piper)
 pari piper-tts-bin
 
-# Install Piper voices
+# Piper voices
 mkdir -p "$HOME/.local/share/piper/voices"
-cd "$HOME/.local/share/piper/voices"
-
-[ -f en_GB-cori-high.onnx ] && echo "Piper voices already installed" || confirm --default=true "Install Piper TTS voices (Cori - female British, Ryan - male American) (high quality)?" && {
-    echo "Downloading Cori voice (female, British, high quality)..."
-    wget -q --show-progress -O en_GB-cori-high.onnx \
-        "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_GB/cori/high/en_GB-cori-high.onnx"
-    wget -q --show-progress -O en_GB-cori-high.onnx.json \
-        "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_GB/cori/high/en_GB-cori-high.onnx.json"
-
-    echo "Downloading Ryan voice (male, American, high quality)..."
-    wget -q --show-progress -O en_US-ryan-high.onnx \
-        "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/ryan/high/en_US-ryan-high.onnx"
-    wget -q --show-progress -O en_US-ryan-high.onnx.json \
-        "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/ryan/high/en_US-ryan-high.onnx.json"
-
-    echo "✅ Piper high-quality voices installed"
-} || echo "Skipping Piper voice installation"
+if [ -f "$HOME/.local/share/piper/voices/en_GB-cori-high.onnx" ]; then
+    echo "Piper voices already installed"
+elif confirm --default=true "Install Piper TTS voices (Cori - female British, Ryan - male American) (high quality)?"; then
+    ( set -e
+      cd "$HOME/.local/share/piper/voices"
+      wget -q --show-progress -O en_GB-cori-high.onnx \
+          "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_GB/cori/high/en_GB-cori-high.onnx"
+      wget -q --show-progress -O en_GB-cori-high.onnx.json \
+          "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_GB/cori/high/en_GB-cori-high.onnx.json"
+      wget -q --show-progress -O en_US-ryan-high.onnx \
+          "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/ryan/high/en_US-ryan-high.onnx"
+      wget -q --show-progress -O en_US-ryan-high.onnx.json \
+          "https://huggingface.co/rhasspy/piper-voices/resolve/v1.0.0/en/en_US/ryan/high/en_US-ryan-high.onnx.json"
+    ) || fail "piper voice downloads"
+else
+    echo "Skipping Piper voice installation"
+fi
 
 if $IS_LAPTOP; then
-    printf 'ListenAddress 127.0.0.1\n' | sudo tee /etc/ssh/sshd_config.d/10-localhost-only.conf >/dev/null
+    printf 'ListenAddress 127.0.0.1\n' | sudo tee /etc/ssh/sshd_config.d/10-localhost-only.conf >/dev/null || fail "sshd localhost-only config"
 fi
 
 if $IS_TUXEDO; then
@@ -223,8 +234,26 @@ fi
 MACHINE_FILE="$HOME/DOTS/arch/machines/$(cat /etc/hostname).sh"
 if [ -f "$MACHINE_FILE" ]; then
     echo "→ machine quirks: $MACHINE_FILE"
-    source "$MACHINE_FILE" || FAILED+=("machine quirks: $MACHINE_FILE")
+    source "$MACHINE_FILE" || fail "machine quirks: $MACHINE_FILE"
 fi
+
+# ── VERIFY — assert outcomes, not attempts. A step that "ran" but left
+# nothing behind fails HERE with the exact missing thing named. ──
+echo; echo "── verifying outcomes"
+vcmd paru zsh starship alacritty kitty tmux yazi lazygit gh delta difft bob zeditor \
+     chromium aichat flameshot copyq easyeffects steam lutris discord obsidian \
+     pnpm pyenv chezmoi claude opencode xss-lock i3lock piper valkey-server \
+     zen-browser slack resvg zoxide fzf rg fd bat gum glow bw age
+vfile "$HOME/.oh-my-zsh"
+vfile "$HOME/.nvm/nvm.sh"
+vfile "$HOME/.config/autostart/screen-lock.desktop"
+vfile "$HOME/whisper.cpp/build/bin/whisper-cli"
+vfile "$HOME/.local/share/piper/voices/en_GB-cori-high.onnx"
+[ "$(getent passwd "$USER" | cut -d: -f7)" = "$(which zsh)" ] || fail "verify: login shell is not zsh"
+pacman -Slq multilib >/dev/null 2>&1 || fail "verify: multilib repo not enabled"
+case "$(git -C "$HOME/DOTS" remote get-url origin)" in https://*) ;; *) fail "verify: DOTS fetch URL is not https";; esac
+git config --global user.email >/dev/null 2>&1 || fail "verify: git identity not set"
+$IS_LAPTOP && { [ -f /etc/ssh/sshd_config.d/10-localhost-only.conf ] || fail "verify: sshd localhost-only config missing"; }
 
 # SUMMARY — always the last thing printed; failures also land as a file
 # in $HOME so a login can't miss them, and a nonzero exit makes the
@@ -249,7 +278,7 @@ else
     rm -f "$HOME/FIRSTBOOT-FAILURES.txt"
     if command -v gum >/dev/null 2>&1; then
         gum style --border rounded --border-foreground 2 --padding "1 3" --margin "1 2" \
-            "✅  FIRST-BOOT COMPLETE — all steps succeeded" "" \
+            "✅  FIRST-BOOT COMPLETE — all steps verified" "" \
             "Next:" \
             "  1. bash ~/DOTS/arch/post-init.sh          chezmoi + gh/bw auth" \
             "  2. log out → pick session at the greeter" \
