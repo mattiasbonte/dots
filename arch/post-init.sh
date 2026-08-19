@@ -22,25 +22,33 @@ if ! command -v bw &>/dev/null; then
     exit 1
 fi
 
-# gh launches the browser attached, so Chromium's stderr (MESA-LOADER,
-# DEPRECATED_ENDPOINT, mojo) floods the terminal and looks like failure.
-# A detached, silenced wrapper keeps the auth flow readable.
-BROWSER_WRAP="${XDG_RUNTIME_DIR:-/tmp}/quiet-browser"
-printf '#!/bin/sh\nexec setsid xdg-open "$@" >/dev/null 2>&1 &\n' > "$BROWSER_WRAP"
-chmod +x "$BROWSER_WRAP"
-export BROWSER="$BROWSER_WRAP"
+# gh's device flow blocks on the browser and stores nothing if interrupted.
+# What chezmoi actually needs is an SSH key on GitHub — so that's the gate;
+# gh login is a nice-to-have handled afterwards.
+export BROWSER="${XDG_RUNTIME_DIR:-/tmp}/quiet-browser"
+printf '#!/bin/sh\nexec setsid xdg-open "$@" >/dev/null 2>&1 &\n' > "$BROWSER"
+chmod +x "$BROWSER"
+export GH_BROWSER="$BROWSER"
 
-# Gates verify for themselves — no self-reported y/n answers
-gh auth status &>/dev/null || gh auth login
-gh auth status &>/dev/null || { echo "✘ github-cli still not authenticated"; exit 1; }
-if ! ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
-    echo "✘ GitHub SSH auth is NOT working — chezmoi (and DOTS pushes) would fail."
-    echo "  fix: gh auth login → GitHub.com → SSH → upload/generate a key, then re-run this script"
-    echo "  (if gh is already logged in but the key never uploaded:"
-    echo "     gh auth refresh -h github.com -s admin:public_key"
-    echo "     gh ssh-key add ~/.ssh/id_ed25519.pub --title $(cat /etc/hostname))"
-    exit 1
+HOST=$(cat /etc/hostname)
+github_ssh_ok() { ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -T git@github.com 2>&1 | grep -q "successfully authenticated"; }
+
+if ! github_ssh_ok; then
+    [ -f "$HOME/.ssh/id_ed25519" ] || ssh-keygen -t ed25519 -C "$HOST" -f "$HOME/.ssh/id_ed25519" -N ""
+    gh auth status &>/dev/null && gh ssh-key add "$HOME/.ssh/id_ed25519.pub" --title "$HOST" 2>/dev/null
+    if ! github_ssh_ok; then
+        echo
+        echo "→ Add this key at https://github.com/settings/ssh/new  (title: $HOST)"
+        echo
+        cat "$HOME/.ssh/id_ed25519.pub"
+        echo
+        gum confirm "Added it to GitHub?" || { echo "✘ chezmoi can't clone without it — re-run when added"; exit 1; }
+        github_ssh_ok || { echo "✘ GitHub still rejects the key — check you pasted the whole line"; exit 1; }
+    fi
 fi
+echo "✔ GitHub SSH authenticated"
+gh auth status &>/dev/null || echo "⚠ gh CLI not logged in (optional) — run 'gh auth login' whenever you like"
+
 bw login --check &>/dev/null || bw login
 bw login --check &>/dev/null || { echo "✘ bitwarden-cli still not logged in"; exit 1; }
 
