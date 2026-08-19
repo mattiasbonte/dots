@@ -8,6 +8,10 @@
 
 cd "$HOME" # unattended service starts in / — clones/builds need a writable CWD
 
+# full transcript — failures in the panel reference it for the actual error text
+LOG="$HOME/.local/state/first-boot.log"; mkdir -p "$HOME/.local/state"
+exec > >(tee "$LOG") 2>&1
+
 # NONINTERACTIVE=1 → every gum prompt takes its default (used by the
 # wise-firstboot service that runs this unattended after install)
 confirm() { if [ "${NONINTERACTIVE:-0}" = 1 ]; then [ "$1" = "--default=true" ]; else gum confirm "$@"; fi; }
@@ -180,7 +184,7 @@ sudo pacman -S --needed --noconfirm --asdeps \
     giflib lib32-giflib gnutls lib32-gnutls v4l-utils lib32-v4l-utils libpulse \
     lib32-libpulse alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib sqlite lib32-sqlite libxcomposite \
     lib32-libxcomposite ocl-icd lib32-ocl-icd libva lib32-libva gtk3 lib32-gtk3 gst-plugins-base-libs \
-    lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader sdl2-compat lib32-sdl2-compat \
+    vulkan-icd-loader lib32-vulkan-icd-loader sdl2-compat lib32-sdl2-compat \
     || fail "wine dependencies (--asdeps)"
 
 # Packs
@@ -244,14 +248,14 @@ fi
 echo; echo "── verifying outcomes"
 vcmd paru zsh starship alacritty kitty tmux yazi lazygit gh delta difft bob zeditor \
      chromium aichat flameshot copyq easyeffects steam lutris discord obsidian \
-     pnpm pyenv chezmoi claude opencode xss-lock i3lock piper valkey-server \
+     pnpm pyenv chezmoi claude opencode xss-lock i3lock piper-tts valkey-server \
      zen-browser slack resvg zoxide fzf rg fd bat gum glow bw age
 vfile "$HOME/.oh-my-zsh"
 vfile "$HOME/.nvm/nvm.sh"
 vfile "$HOME/.config/autostart/screen-lock.desktop"
 vfile "$HOME/whisper.cpp/build/bin/whisper-cli"
 vfile "$HOME/.local/share/piper/voices/en_GB-cori-high.onnx"
-[ "$(getent passwd "$USER" | cut -d: -f7)" = "$(which zsh)" ] || fail "verify: login shell is not zsh"
+[ "$(basename "$(getent passwd "$USER" | cut -d: -f7)")" = zsh ] || fail "verify: login shell is not zsh"
 pacman -Slq multilib >/dev/null 2>&1 || fail "verify: multilib repo not enabled"
 case "$(git -C "$HOME/DOTS" remote get-url origin)" in https://*) ;; *) fail "verify: DOTS fetch URL is not https";; esac
 git config --global user.email >/dev/null 2>&1 || fail "verify: git identity not set"
@@ -269,7 +273,8 @@ if [ ${#FAILED[@]} -gt 0 ]; then
         gum style --border rounded --border-foreground 1 --padding "1 3" --margin "1 2" \
             "⚠  FIRST-BOOT — ${#FAILED[@]} step(s) failed" "" \
             "$(printf '• %s\n' "${FAILED[@]}")" "" \
-            "Details: ~/FIRSTBOOT-FAILURES.txt" \
+            "Details:  ~/FIRSTBOOT-FAILURES.txt" \
+            "Full log: ~/.local/state/first-boot.log" \
             "Re-run:  bash ~/DOTS/arch/first-boot.sh" \
             "(idempotent — only redoes what failed)"
     else
