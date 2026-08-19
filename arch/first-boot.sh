@@ -107,7 +107,7 @@ paci htop btop vim nano xdg-utils xorg-xrandr xorg-xev xterm \
     sof-firmware smartmontools efibootmgr net-tools inotify-tools time \
     git-filter-repo sox darkman python-pipx tree-sitter-cli \
     feh nsxiv zathura zathura-pdf-mupdf clamav
-pari whosthere-bin yaak-bin gnu-netcat
+pari whosthere-bin yaak-bin # nc comes from openbsd-netcat (dep); gnu-netcat conflicts with it
 
 # Tailscale (mesh vpn) — your choice per machine; default yes on laptops
 TS_DEFAULT="--default=false"; $IS_LAPTOP && TS_DEFAULT="--default=true"
