@@ -52,17 +52,26 @@ gh auth status &>/dev/null || echo "⚠ gh CLI not logged in (optional) — run 
 bw login --check &>/dev/null || bw login
 bw login --check &>/dev/null || { echo "✘ bitwarden-cli still not logged in"; exit 1; }
 
-# CHEZMOI
-if [ -d "$HOME/.local/share/chezmoi/.git" ]; then echo "chezmoi already initialized"; else
-    gum confirm "Initialize chezmoi?" && {
-        bw sync
-        echo "Initializing chezmoi..."
-        export BW_SESSION=$(bw unlock --raw)
-        [ -n "$BW_SESSION" ] || { echo "✘ bitwarden unlock failed — chezmoi templates need it"; exit 1; }
-        sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply git@github.com:mattiasbonte/dotfiles.git \
-            || { echo "✘ chezmoi init/apply FAILED — everything below depends on it; fix and re-run"; exit 1; }
-        unset BW_SESSION
-    }
+# One unlock per boot, shared with the chbw/chup shell helpers via the same
+# cache (user-only tmpfs, gone at logout)
+BW_SESSION_CACHE="${XDG_RUNTIME_DIR:-/tmp}/bw-session"
+bw_session_ensure(){
+    [[ -z $BW_SESSION && -r $BW_SESSION_CACHE ]] && export BW_SESSION="$(<$BW_SESSION_CACHE)"
+    [[ -n $BW_SESSION ]] && bw status 2>/dev/null | grep -q '"status":"unlocked"' && return 0
+    export BW_SESSION="$(bw unlock --raw)"
+    [[ -n $BW_SESSION ]] || return 1
+    (umask 077; print -r -- "$BW_SESSION" > "$BW_SESSION_CACHE")
+}
+bw_session_ensure || { echo "✘ bitwarden unlock failed — chezmoi templates need it"; exit 1; }
+bw sync
+
+# CHEZMOI — init on a fresh machine, update on every later run
+if [ -d "$HOME/.local/share/chezmoi/.git" ]; then
+    echo "→ chezmoi update (pull + apply)"
+    chezmoi update || { echo "✘ chezmoi update FAILED — everything below depends on it"; exit 1; }
+else
+    sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply git@github.com:mattiasbonte/dotfiles.git \
+        || { echo "✘ chezmoi init/apply FAILED — everything below depends on it; fix and re-run"; exit 1; }
 fi
 
 # Post Chezmoi Setup
