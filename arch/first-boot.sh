@@ -317,4 +317,6 @@ else
 fi
 
 # REBOOT AT THE END (setup.sh chains straight into post-init instead)
-[ "${SETUP_CHAIN:-0}" = 1 ] || confirm --default=false "Reboot now?" && reboot || echo "Skipping reboot"
+if [ "${SETUP_CHAIN:-0}" != 1 ]; then
+    confirm --default=false "Reboot now?" && reboot || echo "Skipping reboot"
+fi
