@@ -21,6 +21,7 @@ item_id() { bw list items --search "$ITEM_NAME" 2>/dev/null | jq -r --arg n "$IT
 case "${1:-pull}" in
 pull)
     mkdir -p "$OUT"; chmod 700 "$OUT"
+    bw sync >/dev/null 2>&1 || true   # the item may have been pushed seconds ago elsewhere
     id=$(item_id)
     [ -n "$id" ] || { echo "✘ no Bitwarden item named '$ITEM_NAME' — run this with 'push' on the laptop first"; exit 1; }
     for repo in "${REPOS[@]}"; do
