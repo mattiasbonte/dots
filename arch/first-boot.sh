@@ -123,7 +123,7 @@ pari slack-desktop
 
 # ESSENTIALS (from installed-state audit — daily-driver basics)
 paci htop btop vim nano xdg-utils xorg-xrandr xorg-xev xterm \
-    xorg-xset xorg-xinput dolphin \
+    xorg-xset xorg-xinput dolphin ark unrar \
     network-manager-applet terminus-font ttf-liberation gnu-free-fonts \
     sof-firmware smartmontools efibootmgr net-tools inotify-tools time \
     git-filter-repo sox darkman python-pipx tree-sitter-cli \
@@ -282,7 +282,7 @@ fi
 # ── VERIFY — assert outcomes, not attempts. A step that "ran" but left
 # nothing behind fails HERE with the exact missing thing named. ──
 echo; echo "── verifying outcomes"
-vcmd xset xinput dolphin \
+vcmd xset xinput dolphin ark unrar unzip \
      paru zsh starship alacritty kitty tmux yazi lazygit gh delta difft bob zeditor \
      chromium aichat flameshot copyq easyeffects steam lutris discord obsidian \
      pnpm pyenv chezmoi claude opencode xss-lock i3lock piper-tts valkey-server \
