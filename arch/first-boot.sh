@@ -43,7 +43,9 @@ paci jq xsel xclip bottom wget atool aria2 cmake keychain xdotool bat tree age m
 # CONFIG
 git -C "$HOME/DOTS" pull
 find "$HOME/DOTS/arch/config" -mindepth 1 -maxdepth 1 -exec cp -rn {} "$HOME/.config/" \; # files AND dirs; -n = bootstrap only, never clobber
-git -C "$HOME/DOTS" remote set-url origin "git@github.com:mattiasbonte/dots.git"
+# fetch stays https (works before any SSH key exists) — only pushes need auth
+git -C "$HOME/DOTS" remote set-url origin "https://github.com/mattiasbonte/dots.git"
+git -C "$HOME/DOTS" remote set-url --push origin "git@github.com:mattiasbonte/dots.git"
 
 # ZSH
 paci zsh zsh-completions starship alacritty kitty tmux

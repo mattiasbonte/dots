@@ -15,16 +15,26 @@ if ! command -v bw &>/dev/null; then
     exit 1
 fi
 gum confirm --default=false "Have you authorized github-cli (so that your github ssh key is set up)?" || gh auth login
+# dotfiles is private + cloned over SSH — verify the key actually works, don't trust the answer above
+if ! ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new -T git@github.com 2>&1 | grep -q "successfully authenticated"; then
+    echo "✘ GitHub SSH auth is NOT working — chezmoi (and DOTS pushes) would fail."
+    echo "  fix: gh auth login → GitHub.com → SSH → upload/generate a key, then re-run this script"
+    exit 1
+fi
 gum confirm --default=false "Have you authorized bitwarden-cli (needed for chezmoi)?" || bw login
 
 # CHEZMOI
-[ -d "$HOME/.local/share/chezmoi/.git" ] && echo "chezmoi already initialized" || gum confirm "Initialize chezmoi?" && {
-    bw sync
-    echo "Initializing chezmoi..."
-    export BW_SESSION=$(bw unlock --raw)
-    sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply git@github.com:mattiasbonte/dotfiles.git
-    unset BW_SESSION
-}
+if [ -d "$HOME/.local/share/chezmoi/.git" ]; then echo "chezmoi already initialized"; else
+    gum confirm "Initialize chezmoi?" && {
+        bw sync
+        echo "Initializing chezmoi..."
+        export BW_SESSION=$(bw unlock --raw)
+        [ -n "$BW_SESSION" ] || { echo "✘ bitwarden unlock failed — chezmoi templates need it"; exit 1; }
+        sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply git@github.com:mattiasbonte/dotfiles.git \
+            || { echo "✘ chezmoi init/apply FAILED — everything below depends on it; fix and re-run"; exit 1; }
+        unset BW_SESSION
+    }
+fi
 
 # Post Chezmoi Setup
 source ~/.zshrc
