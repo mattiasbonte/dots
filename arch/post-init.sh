@@ -22,6 +22,14 @@ if ! command -v bw &>/dev/null; then
     exit 1
 fi
 
+# gh launches the browser attached, so Chromium's stderr (MESA-LOADER,
+# DEPRECATED_ENDPOINT, mojo) floods the terminal and looks like failure.
+# A detached, silenced wrapper keeps the auth flow readable.
+BROWSER_WRAP="${XDG_RUNTIME_DIR:-/tmp}/quiet-browser"
+printf '#!/bin/sh\nexec setsid xdg-open "$@" >/dev/null 2>&1 &\n' > "$BROWSER_WRAP"
+chmod +x "$BROWSER_WRAP"
+export BROWSER="$BROWSER_WRAP"
+
 # Gates verify for themselves — no self-reported y/n answers
 gh auth status &>/dev/null || gh auth login
 gh auth status &>/dev/null || { echo "✘ github-cli still not authenticated"; exit 1; }
