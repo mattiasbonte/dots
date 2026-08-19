@@ -140,15 +140,23 @@ fi
 # DEVICE COMPLIANCE (Vanta device trust: encryption is handled at
 # install time by archinstall; this covers screen lock + evidence)
 # --
-paci xss-lock i3lock
+# Laptops run awesome only, so the lock has to come from the WM session.
+# Desktops run KDE as their primary session and lock via kscreenlocker below;
+# an xss-lock autostart there would also lock the awesome session, which is
+# not wanted on a machine that never leaves the house.
 mkdir -p "$HOME/.config/autostart"
-cat > "$HOME/.config/autostart/screen-lock.desktop" <<'DESKTOP'
+if $IS_LAPTOP; then
+    paci xss-lock i3lock
+    cat > "$HOME/.config/autostart/screen-lock.desktop" <<'DESKTOP'
 [Desktop Entry]
 Type=Application
 Name=Screen autolock (xss-lock)
 Exec=sh -c 'xset s 900 && exec xss-lock -- i3lock -c 000000'
 OnlyShowIn=awesome;
 DESKTOP
+else
+    rm -f "$HOME/.config/autostart/screen-lock.desktop"
+fi
 # KDE session: enforce kscreenlocker regardless of defaults
 for KW in kwriteconfig6 kwriteconfig5; do
     if command -v "$KW" >/dev/null 2>&1; then
@@ -280,7 +288,6 @@ vcmd paru zsh starship alacritty kitty tmux yazi lazygit gh delta difft bob zedi
      zen-browser slack resvg zoxide fzf rg fd bat gum glow bw age
 vfile "$HOME/.oh-my-zsh"
 vfile "$HOME/.nvm/nvm.sh"
-vfile "$HOME/.config/autostart/screen-lock.desktop"
 vfile "$HOME/whisper.cpp/build/bin/whisper-cli"
 vfile "$HOME/.local/share/piper/voices/en_GB-cori-high.onnx"
 [ "$(basename "$(getent passwd "$USER" | cut -d: -f7)")" = zsh ] || fail "verify: login shell is not zsh"
@@ -288,6 +295,7 @@ pacman -Slq multilib >/dev/null 2>&1 || fail "verify: multilib repo not enabled"
 case "$(git -C "$HOME/DOTS" remote get-url origin)" in https://*) ;; *) fail "verify: DOTS fetch URL is not https";; esac
 git config --global user.email >/dev/null 2>&1 || fail "verify: git identity not set"
 $IS_LAPTOP && { [ -f /etc/ssh/sshd_config.d/10-localhost-only.conf ] || fail "verify: sshd localhost-only config missing"; }
+$IS_LAPTOP && { [ -f "$HOME/.config/autostart/screen-lock.desktop" ] || fail "verify: xss-lock autostart missing"; }
 
 # SUMMARY — always the last thing printed; failures also land as a file
 # in $HOME so a login can't miss them, and a nonzero exit makes the
