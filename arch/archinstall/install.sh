@@ -91,7 +91,7 @@ echo "KEYMAP=$KEYMAP" > /etc/vconsole.conf
 echo "$HOST" > /etc/hostname
 printf '127.0.0.1 localhost\n::1 localhost\n127.0.1.1 $HOST\n' > /etc/hosts
 
-useradd -m -G wheel -s /bin/zsh wise
+useradd -m -G wheel -s /usr/bin/zsh wise
 echo '%wheel ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/wheel
 chmod 440 /etc/sudoers.d/wheel
 
