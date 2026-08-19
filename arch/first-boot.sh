@@ -181,7 +181,7 @@ paci linux-zen-headers nvidia-open-dkms nvidia-utils lib32-nvidia-utils nvidia-s
 # Wine - https://github.com/lutris/docs/blob/master/WineDependencies.md
 paci wine-staging
 sudo pacman -S --needed --noconfirm --asdeps \
-    giflib lib32-giflib gnutls lib32-gnutls v4l-utils lib32-v4l-utils libpulse \
+    giflib gnutls lib32-gnutls v4l-utils libpulse \
     lib32-libpulse alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib sqlite lib32-sqlite libxcomposite \
     lib32-libxcomposite ocl-icd lib32-ocl-icd libva lib32-libva gtk3 lib32-gtk3 gst-plugins-base-libs \
     vulkan-icd-loader lib32-vulkan-icd-loader sdl2-compat lib32-sdl2-compat \
