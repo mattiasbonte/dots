@@ -123,6 +123,7 @@ pari slack-desktop
 
 # ESSENTIALS (from installed-state audit — daily-driver basics)
 paci htop btop vim nano xdg-utils xorg-xrandr xorg-xev xterm \
+    xorg-xset xorg-xinput dolphin \
     network-manager-applet terminus-font ttf-liberation gnu-free-fonts \
     sof-firmware smartmontools efibootmgr net-tools inotify-tools time \
     git-filter-repo sox darkman python-pipx tree-sitter-cli \
@@ -183,7 +184,6 @@ pari lain-git
 
 # LAPTOP (auto-detected)
 if $IS_LAPTOP; then
-    paci xorg-xinput # touchpad
     paci blueman # bluetooth
     paci brightnessctl # screen brightness
     pari unified-remote-server # remote control
@@ -282,7 +282,8 @@ fi
 # ── VERIFY — assert outcomes, not attempts. A step that "ran" but left
 # nothing behind fails HERE with the exact missing thing named. ──
 echo; echo "── verifying outcomes"
-vcmd paru zsh starship alacritty kitty tmux yazi lazygit gh delta difft bob zeditor \
+vcmd xset xinput dolphin \
+     paru zsh starship alacritty kitty tmux yazi lazygit gh delta difft bob zeditor \
      chromium aichat flameshot copyq easyeffects steam lutris discord obsidian \
      pnpm pyenv chezmoi claude opencode xss-lock i3lock piper-tts valkey-server \
      zen-browser slack resvg zoxide fzf rg fd bat gum glow bw age
