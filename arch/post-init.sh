@@ -130,6 +130,14 @@ try "valkey enable+start" sudo systemctl enable --now valkey.service
 # Spotify
 command -v go-spotify-cli >/dev/null 2>&1 || try "go-spotify-cli install" go install github.com/envoy49/go-spotify-cli@latest
 
+# Zen profile dirs are randomly named per machine, so the tracked config is
+# copied into whichever profile is active (spaces, pins, keybinds, themes).
+if [ -d "$HOME/.config/zen-profile" ] && ! pgrep -f 'zen-bin|zen-browser' >/dev/null; then
+    try "zen config apply" bash "$HOME/DOTS/arch/bin/zen-config.sh" apply
+elif [ -d "$HOME/.config/zen-profile" ]; then
+    echo "→ Zen is running; skipping zen-config apply (run it later with Zen closed)"
+fi
+
 # ── VERIFY — assert outcomes, not attempts ──
 echo; echo "── verifying outcomes"
 vfile "$HOME/.local/share/chezmoi/.git"
