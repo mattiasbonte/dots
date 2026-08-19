@@ -290,6 +290,8 @@ else
     if command -v gum >/dev/null 2>&1; then
         gum style --border rounded --border-foreground 2 --padding "1 3" --margin "1 2" \
             "✅  FIRST-BOOT COMPLETE — all steps verified" "" \
+            "Shells stay bare until post-init: plugins, keybinds, tmux," \
+            "alacritty and zen all arrive with chezmoi." "" \
             "Next:" \
             "  1. bash ~/DOTS/arch/post-init.sh          chezmoi + gh/bw auth" \
             "  2. log out → pick session at the greeter" \
