@@ -232,6 +232,27 @@ else
     echo "Whisper.cpp already built, skipping"
 fi
 
+# ASR (Parakeet via sherpa-onnx) — belt's default STT backend: one int8 CPU
+# model, 25 EU languages incl NL, punctuation built in. Same layout as the
+# aether server (~/sherpa-onnx/{bin,models}); belt auto-selects it when present.
+SHERPA_VERSION="v1.13.6"
+if [ -x "$HOME/sherpa-onnx/bin/sherpa-onnx-offline" ] && [ -f "$HOME/sherpa-onnx/models/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8/encoder.int8.onnx" ]; then
+    echo "sherpa-onnx + Parakeet already installed, skipping"
+else
+    ( set -e
+      mkdir -p "$HOME/sherpa-onnx/models"
+      cd "$HOME/sherpa-onnx"
+      wget -q --show-progress -O sherpa-onnx-static.tar.bz2 \
+          "https://github.com/k2-fsa/sherpa-onnx/releases/download/$SHERPA_VERSION/sherpa-onnx-$SHERPA_VERSION-linux-x64-static.tar.bz2"
+      tar xjf sherpa-onnx-static.tar.bz2 && rm sherpa-onnx-static.tar.bz2
+      ln -sfn "$HOME/sherpa-onnx/sherpa-onnx-$SHERPA_VERSION-linux-x64-static/bin" "$HOME/sherpa-onnx/bin"
+      cd models
+      wget -q --show-progress -O parakeet.tar.bz2 \
+          "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8.tar.bz2"
+      tar xjf parakeet.tar.bz2 && rm parakeet.tar.bz2
+    ) || fail "sherpa-onnx / parakeet install"
+fi
+
 # TTS (Piper)
 pari piper-tts-bin
 
@@ -290,6 +311,8 @@ vcmd xset xinput dolphin ark unrar unzip \
 vfile "$HOME/.oh-my-zsh"
 vfile "$HOME/.nvm/nvm.sh"
 vfile "$HOME/whisper.cpp/build/bin/whisper-cli"
+vfile "$HOME/sherpa-onnx/bin/sherpa-onnx-offline"
+vfile "$HOME/sherpa-onnx/models/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8/encoder.int8.onnx"
 vfile "$HOME/.local/share/piper/voices/en_GB-cori-high.onnx"
 [ "$(basename "$(getent passwd "$USER" | cut -d: -f7)")" = zsh ] || fail "verify: login shell is not zsh"
 pacman -Slq multilib >/dev/null 2>&1 || fail "verify: multilib repo not enabled"
