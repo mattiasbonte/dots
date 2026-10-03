@@ -108,24 +108,10 @@ try "xdg-mime x-markdown" xdg-mime default dev.zed.Zed.desktop text/x-markdown
 try "xdg-mime plain"      xdg-mime default dev.zed.Zed.desktop text/plain
 
 # --
-# Sytemd
+# Systemd: chezmoi owns units now (.chezmoidata/services.yaml, enabled by
+# run_onchange_after_30-units: linger, bluetooth, valkey, tailscaled, sshd,
+# and the laptop user units).
 # --
-try "loginctl linger" loginctl enable-linger $USER
-
-# laptop-specific user units (files come from chezmoi)
-case "$(cat /etc/hostname)" in wise-laptop*)
-    for u in aether-break.service aether-secrets-unlock.service aether-tunnel.service \
-             wintro-notes-sync.service aether-backup-daily.timer aether-laptop-sync.timer \
-             chezmoi-re-add.timer laptop-heartbeat.timer; do
-        [ -f "$HOME/.config/systemd/user/$u" ] && try "enable $u" systemctl --user enable "$u"
-    done ;;
-esac
-try "enable bluetooth" sudo systemctl enable --now bluetooth.service # system service, not user
-case "$(cat /etc/hostname)" in wise-laptop*) try "enable autorandr" systemctl --user enable autorandr.service ;; esac # multi-display is a laptop concern
-
-
-# Redis
-try "valkey enable+start" sudo systemctl enable --now valkey.service
 
 # Spotify
 command -v go-spotify-cli >/dev/null 2>&1 || try "go-spotify-cli install" go install github.com/envoy49/go-spotify-cli@latest
