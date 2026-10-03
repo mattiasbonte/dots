@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# NEW: ~/DOTS/bootstrap.sh is the idempotent one-command path (bw, SSH/age keys, chezmoi); this script stays until packages move into chezmoi.
 # The one command to bring a machine up to date. Both phases are idempotent,
 # so this is equally the install path and the "sync my machine" path:
 #   phase 1  first-boot  packages, drivers, device compliance   (no auth needed)
