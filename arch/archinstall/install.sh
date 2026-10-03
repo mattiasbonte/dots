@@ -121,9 +121,9 @@ echo "✔ encryption verified · boot entry present · user configured"
 umount -R /mnt
 cryptsetup close root
 echo "✔ done — reboot, remove the USB, enter your passphrase, log in as wise."
-echo "  Then, in your own time and in this order:"
-echo "    bash ~/DOTS/arch/first-boot.sh     # packages — watch the summary at the end"
-echo "    bash ~/DOTS/arch/post-init.sh      # chezmoi + auth ceremonies"
+echo "  Then run the one command (Bitwarden login is its only password step):"
+echo "    bash ~/DOTS/bootstrap.sh"
+echo "  and finally: sudo tailscale up"
 }
 main "$@"
 exit $?

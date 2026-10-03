@@ -5,11 +5,11 @@
 # what is already done, so re-running it is fast and harmless.
 #
 # Usage:
-#   bash ~/DOTS/bootstrap.sh [--dry-run]
+#   bash ~/DOTS/bootstrap.sh [--dry-run] [--no-upgrade]
 #   curl -fsSL https://raw.githubusercontent.com/mattiasbonte/dots/main/bootstrap.sh | bash
 #   curl -fsSL https://raw.githubusercontent.com/mattiasbonte/dots/main/bootstrap.sh | bash -s -- --dry-run
 #
-# Steps: prerequisites (pacman) → Bitwarden login/unlock (the only password step)
+# Steps: system upgrade + prerequisites (pacman -Syu, paru -Sua) → Bitwarden login/unlock (the only password step)
 #        → GitHub SSH key + known_hosts → chezmoi age key → chezmoi source
 #        (clone, fast-forward, or reset a clean clone that diverged after a history
 #        rewrite) → chezmoi apply → remaining manual steps.
@@ -26,15 +26,16 @@ CHEZMOI_SRC="${CHEZMOI_SRC:-$HOME/.local/share/chezmoi}"
 CHEZMOI_BRANCH="main"
 SSH_KEY="$HOME/.ssh/id_ed25519"
 AGE_KEY="$HOME/.config/chezmoi/key.txt"
-BW_SESSION_CACHE="${XDG_RUNTIME_DIR:-/tmp}/bw-session"   # shared with post-init and the chbw/chup helpers
+BW_SESSION_CACHE="${XDG_RUNTIME_DIR:-/tmp}/bw-session"   # shared with the chbw/chup helpers
 PREREQS=(git chezmoi bitwarden-cli jq age openssh)
 # github.com's published ed25519 host key fingerprint (docs.github.com, "GitHub's SSH key fingerprints")
 GITHUB_ED25519_FP="SHA256:+DiY3wvvV6TuJJhbpZisF/zLDA0zPMSvHdkr4UvCOqU"
 
-DRY_RUN=0
+DRY_RUN=0 NO_UPGRADE=0
 for arg in "$@"; do
     case "$arg" in
         --dry-run|-n) DRY_RUN=1 ;;
+        --no-upgrade) NO_UPGRADE=1 ;;
         -h|--help) sed -n '2,19p' "${BASH_SOURCE[0]:-/dev/null}" 2>/dev/null || true; exit 0 ;;
         *) echo "✘ unknown argument: $arg" >&2; exit 2 ;;
     esac
@@ -54,13 +55,24 @@ tty_ok() { [ -r "$TTY" ] && { : <"$TTY"; } 2>/dev/null; }
 run_tty() { if [ "$DRY_RUN" = 1 ]; then run "$@"; elif tty_ok; then "$@" <"$TTY"; else "$@"; fi; }
 pause() { tty_ok || die "no terminal to wait on — re-run interactively"; read -r -p "$1 " _ <"$TTY"; }
 
-# ── 1. prerequisites ──
+# ── 1. system upgrade + prerequisites ──
+# A full -Syu every run (Arch has no partial upgrades); the prerequisites ride
+# along in the same transaction. --no-upgrade skips it on a metered link.
 install_prereqs() {
     local missing=() p
     for p in "${PREREQS[@]}"; do pacman -Qq "$p" &>/dev/null || missing+=("$p"); done
-    if [ ${#missing[@]} -eq 0 ]; then ok "prerequisites installed"; return; fi
-    say "installing: ${missing[*]}"
-    run sudo pacman -S --needed --noconfirm "${missing[@]}"
+    if [ "$NO_UPGRADE" = 1 ]; then
+        [ ${#missing[@]} -eq 0 ] && { ok "prerequisites installed (upgrade skipped)"; return; }
+        say "installing: ${missing[*]}"
+        run sudo pacman -S --needed --noconfirm "${missing[@]}"
+        return
+    fi
+    say "system upgrade${missing[*]:+ + installing: ${missing[*]}}"
+    run sudo pacman -Syu --needed --noconfirm "${missing[@]}"
+    if command -v paru &>/dev/null; then
+        say "AUR upgrade"
+        run_tty paru -Sua --noconfirm || warn "AUR upgrade failed (non-fatal)"
+    fi
 }
 
 # ── 2. Bitwarden ──
@@ -130,7 +142,7 @@ print_ssh_item_howto() {
 EOF
 }
 
-# Fallback (post-init's method): a per-host key, added with gh or pasted by hand.
+# Fallback: a per-host key, added with gh or pasted by hand.
 ssh_key_fallback() {
     local host; host="$(cat /etc/hostname 2>/dev/null || hostname)"
     if [ "$DRY_RUN" = 1 ]; then echo "  [dry-run] ssh-keygen -t ed25519 -C $host -f $SSH_KEY, then add it to GitHub"; return; fi
