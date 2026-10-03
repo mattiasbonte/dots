@@ -122,7 +122,7 @@ if [ -d "$HOME/.config/zen-profile" ]; then
     if pgrep -x zen-bin >/dev/null; then
         echo "→ Zen is running; skipping zen-config apply (re-run it with Zen closed)"
     else
-        try "zen config apply" bash "$HOME/DOTS/arch/bin/zen-config.sh" apply
+        try "zen config apply" "$HOME/.local/bin/zen-config.sh" apply
         # tabs are not in chezmoi (binary + session URLs): push them from the laptop
         [ -f "$HOME/.zen/$(awk -F= '/^\[Install/{i=1;next} i&&/^Default=/{print $2;exit}' "$HOME/.zen/profiles.ini" 2>/dev/null)/zen-sessions.jsonlz4" ] \
             || echo "→ tabs: on the laptop run  zen-config.sh session-push $(cat /etc/hostname)"

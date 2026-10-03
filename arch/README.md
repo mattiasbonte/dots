@@ -84,7 +84,7 @@ bash /mnt/usb/install.sh
    marker: `/var/lib/wise-firstboot.done` — delete it to re-run).
 4. Once, manually: `~/DOTS/arch/post-init.sh` (gh + bitwarden OAuth can't
    be automated) and `passwd` + LUKS passphrase rotation.
-5. Evidence: `~/DOTS/arch/bin/device-evidence.sh` → upload to Vanta.
+5. Evidence: `~/.local/bin/device-evidence.sh` → upload to Vanta.
 
 # Post-install
 
@@ -93,7 +93,7 @@ bash /mnt/usb/install.sh
 ~/DOTS/arch/post-init.sh
 
 # Device compliance evidence (upload to Vanta > Computers > this device)
-~/DOTS/arch/bin/device-evidence.sh
+~/.local/bin/device-evidence.sh
 ```
 
 # Gaming

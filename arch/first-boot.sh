@@ -101,8 +101,7 @@ for KW in kwriteconfig6 kwriteconfig5; do
         break
     fi
 done
-chmod +x "$HOME/DOTS/arch/bin/device-evidence.sh"
-echo "→ after setup, run ~/DOTS/arch/bin/device-evidence.sh and upload the file to Vanta"
+echo "→ after setup, run ~/.local/bin/device-evidence.sh (from chezmoi) and upload the file to Vanta"
 
 # caps:escape at the X-server level — applies in every session and at the
 # SDDM greeter, independent of WM autostarts
@@ -171,7 +170,7 @@ else
             "Next:" \
             "  1. bash ~/DOTS/arch/post-init.sh          chezmoi + gh/bw auth" \
             "  2. log out → pick session at the greeter" \
-            "  3. ~/DOTS/arch/bin/device-evidence.sh     Vanta evidence"
+            "  3. device-evidence.sh                     Vanta evidence (~/.local/bin, from chezmoi)"
     else
         echo "✅ first-boot complete — next: bash ~/DOTS/arch/post-init.sh"
     fi
