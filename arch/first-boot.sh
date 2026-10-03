@@ -91,10 +91,8 @@ paci yazi ffmpeg 7zip jq poppler fd ripgrep fzf zoxide imagemagick trash-cli mpv
 
 pari resvg
 
-# GIT
+# GIT (identity: chezmoi dot_gitconfig, from .chezmoi.toml.tmpl [data.git])
 paci git git-crypt lazygit github-cli git-delta difftastic
-try "git identity (email)" git config --global user.email "info@mattiasbonte.dev"
-try "git identity (name)"  git config --global user.name "Mattias B."
 
 # DEV
 pari pnpm-bin pyenv luarocks postgresql-libs opencode-bin claude-code sqlit
@@ -317,7 +315,6 @@ vfile "$HOME/.local/share/piper/voices/en_GB-cori-high.onnx"
 [ "$(basename "$(getent passwd "$USER" | cut -d: -f7)")" = zsh ] || fail "verify: login shell is not zsh"
 pacman -Slq multilib >/dev/null 2>&1 || fail "verify: multilib repo not enabled"
 case "$(git -C "$HOME/DOTS" remote get-url origin)" in https://*) ;; *) fail "verify: DOTS fetch URL is not https";; esac
-git config --global user.email >/dev/null 2>&1 || fail "verify: git identity not set"
 $IS_LAPTOP && { [ -f /etc/ssh/sshd_config.d/10-localhost-only.conf ] || fail "verify: sshd localhost-only config missing"; }
 $IS_LAPTOP && { [ -f "$HOME/.config/autostart/screen-lock.desktop" ] || fail "verify: xss-lock autostart missing"; }
 
