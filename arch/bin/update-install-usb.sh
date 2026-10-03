@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 # Refreshes the netboot install USB so it can never go stale:
 #   - latest iPXE loader (stale loaders fail Arch's image signature check)
-#   - install.sh + per-host archinstall configs synced from DOTS
-#   - creds.json validated (must be JSON with encryption_password)
+#   - install.sh synced from DOTS (it needs no config files or credentials)
 # Usage:
-#   update-install-usb.sh <usb-mountpoint>       # netboot mode: refresh loader+configs
+#   update-install-usb.sh <usb-mountpoint>       # netboot mode: refresh loader + install.sh
 #   update-install-usb.sh --iso /dev/sdX         # ISO mode: flash latest official ISO (WIPES stick)
 set -euo pipefail
 
@@ -31,18 +30,7 @@ curl -sSL -o /tmp/ipxe-arch.efi https://archlinux.org/static/netboot/ipxe-arch.e
 sudo cp "$USB/EFI/BOOT/BOOTX64.EFI" "$USB/EFI/BOOT/BOOTX64.EFI.old" 2>/dev/null || true
 sudo cp /tmp/ipxe-arch.efi "$USB/EFI/BOOT/BOOTX64.EFI"
 
-echo "→ syncing install.sh + configs from DOTS"
+echo "→ syncing install.sh from DOTS"
 sudo cp "$DOTS/arch/archinstall/install.sh" "$USB/install.sh"
-for conf in "$DOTS"/arch/archinstall/conf_*.json; do
-    name=$(basename "$conf" .json); name=${name#conf_}          # desktop / laptop
-    dest="$USB/configs/wise-$name"
-    sudo mkdir -p "$dest"
-    sudo cp "$conf" "$dest/conf.json"
-    if ! python3 -c "import json;d=json.load(open('$dest/creds.json'));assert d.get('encryption_password')" 2>/dev/null; then
-        echo "  ⚠ $dest/creds.json missing or invalid — create it:"
-        echo '    {"root_enc_password": null, "encryption_password": "<temp>",'
-        echo '     "users": [{"username": "wise", "enc_password": "<openssl passwd -6 output>", "groups": [], "sudo": true}]}'
-    fi
-done
 sync
 echo "✔ USB updated — safe to unmount"
