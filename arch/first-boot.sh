@@ -130,8 +130,8 @@ paci htop btop vim nano xdg-utils xorg-xrandr xorg-xev xterm \
     feh nsxiv zathura zathura-pdf-mupdf clamav
 pari whosthere-bin yaak-bin # nc comes from openbsd-netcat (dep); gnu-netcat conflicts with it
 
-# Tailscale (mesh vpn) — your choice per machine; default yes on laptops
-TS_DEFAULT="--default=false"; $IS_LAPTOP && TS_DEFAULT="--default=true"
+# Tailscale (mesh vpn) — default yes everywhere: clauder and the hosts live on the tailnet
+TS_DEFAULT="--default=true"
 if confirm "$TS_DEFAULT" "Install Tailscale? (mesh VPN / remote access)"; then
     paci tailscale
     try "tailscaled enable" sudo systemctl enable --now tailscaled
