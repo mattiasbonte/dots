@@ -26,8 +26,9 @@ KEYMAP=us
 LOCALE=en_US.UTF-8
 
 # GPU: nvidia present → open modules (Turing+); otherwise intel/amd mesa
-if lspci | grep -qi nvidia; then GPU_PKGS="nvidia-open-dkms nvidia-utils"
-else GPU_PKGS="mesa vulkan-intel"; fi
+# nvidia also goes in the initramfs: loaded later, X can start first, miss the dGPU and leave the dock's output black
+if lspci | grep -qi nvidia; then GPU_PKGS="nvidia-open-dkms nvidia-utils"; INITRD_MODULES="nvidia nvidia_modeset nvidia_uvm nvidia_drm"
+else GPU_PKGS="mesa vulkan-intel"; INITRD_MODULES=""; fi
 
 # Per-class: desktops get KDE next to awesome; laptops are awesome-only
 case "$CLASS" in
@@ -95,6 +96,7 @@ useradd -m -G wheel -s /usr/bin/zsh wise
 echo '%wheel ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/wheel
 chmod 440 /etc/sudoers.d/wheel
 
+sed -i 's/^MODULES=.*/MODULES=($INITRD_MODULES)/' /etc/mkinitcpio.conf
 sed -i 's/^HOOKS=.*/HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block encrypt filesystems fsck)/' /etc/mkinitcpio.conf
 mkinitcpio -P
 
