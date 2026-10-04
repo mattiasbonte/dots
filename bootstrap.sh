@@ -316,6 +316,8 @@ main() {
     age_key_ensure
     chezmoi_source_sync
     if [ "$BW_OK" = 1 ] || [ "$DRY_RUN" = 1 ]; then chezmoi_apply; else die "Bitwarden is required for chezmoi apply"; fi
+    # DOTS itself arrives with the chezmoi externals on a fresh machine, so this runs after the apply
+    [ -f "$HOME/DOTS/arch/bin/wake-on-lan.sh" ] && run bash "$HOME/DOTS/arch/bin/wake-on-lan.sh"
     remaining_steps
 }
 
