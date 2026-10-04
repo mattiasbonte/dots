@@ -10,22 +10,20 @@ echo "⚠ first-boot.sh is deprecated: running ~/DOTS/bootstrap.sh"
 bash "$HOME/DOTS/bootstrap.sh" "$@"; rc=$?
 
 # ── TODO(M7): device compliance screen lock, still here until M7 ──
-# Laptops run awesome only, so the lock has to come from the WM session.
-# Desktops run KDE as their primary session and lock via kscreenlocker;
-# an xss-lock autostart there would also lock the awesome session.
+# Every machine runs awesome (desktops log in through sddm, laptops through
+# tty1 autologin), so the lock comes from the WM session everywhere; xss-lock +
+# i3lock are in packages.yaml base. awesome's rc.lua starts autostart entries
+# with `dex --environment Awesome`, and dex matches OnlyShowIn case-sensitively:
+# a lone `awesome` was skipped, so list both spellings. KDE (XDG name KDE) skips
+# this entry and locks through kscreenlocker below.
 mkdir -p "$HOME/.config/autostart"
-if ls /sys/class/power_supply/BAT* >/dev/null 2>&1; then
-    # xss-lock + i3lock come from packages.yaml (laptop)
-    cat > "$HOME/.config/autostart/screen-lock.desktop" <<'DESKTOP'
+cat > "$HOME/.config/autostart/screen-lock.desktop" <<'DESKTOP'
 [Desktop Entry]
 Type=Application
 Name=Screen autolock (xss-lock)
 Exec=sh -c 'xset s 900 && exec xss-lock -- i3lock -c 000000'
-OnlyShowIn=awesome;
+OnlyShowIn=Awesome;awesome;
 DESKTOP
-else
-    rm -f "$HOME/.config/autostart/screen-lock.desktop"
-fi
 # KDE session: enforce kscreenlocker regardless of defaults
 for KW in kwriteconfig6 kwriteconfig5; do
     if command -v "$KW" >/dev/null 2>&1; then
