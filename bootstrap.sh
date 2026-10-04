@@ -96,7 +96,24 @@ bw_ensure() {
     export BW_SESSION
     (umask 077; printf '%s\n' "$BW_SESSION" >"$BW_SESSION_CACHE")
     ok "Bitwarden unlocked (session cached in $BW_SESSION_CACHE)"
-    bw sync >/dev/null || warn "bw sync failed; using the local vault copy"
+    bw_sync_or_relogin
+}
+
+# An unused CLI login expires server-side: login --check and unlock still pass
+# offline, then sync fails (invalid_grant) and bw logs itself out, which breaks
+# every later bw call (chezmoi templates). Log in again once in that case.
+bw_sync_or_relogin() {
+    bw sync >/dev/null && return 0
+    if bw status 2>/dev/null | jq -e '.status == "unauthenticated"' &>/dev/null; then
+        warn "Bitwarden login expired; logging in again"
+        bw login <"$TTY" >/dev/null || die "bw login failed"
+        BW_SESSION="$(bw unlock --raw <"$TTY")" && [ -n "$BW_SESSION" ] || die "bw unlock failed"
+        export BW_SESSION
+        (umask 077; printf '%s\n' "$BW_SESSION" >"$BW_SESSION_CACHE")
+        bw sync >/dev/null || warn "bw sync failed; using the local vault copy"
+    else
+        warn "bw sync failed; using the local vault copy"
+    fi
 }
 
 # bw_item_id NAME → id of the item with exactly that name (empty if none)
